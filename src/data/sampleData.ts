@@ -1,4 +1,3 @@
-
 export const recentMatches = [
   {
     id: 1,
@@ -59,7 +58,7 @@ export const teamPerformance = {
   }
 };
 
-// New data for Squad Builder
+// Enhanced data for Squad Builder
 export const squadPlayers = [
   {
     id: 1,
@@ -69,7 +68,14 @@ export const squadPlayers = [
     price: 12.5,
     form: 'WDWWL',
     points: 85,
-    selected: false
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 22,
+      assists: 13,
+      minutesPlayed: 2340,
+      shotsOnTarget: 48
+    }
   },
   {
     id: 2,
@@ -79,7 +85,14 @@ export const squadPlayers = [
     price: 10.8,
     form: 'WWDLW',
     points: 78,
-    selected: false
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 8,
+      assists: 18,
+      minutesPlayed: 2105,
+      shotsOnTarget: 32
+    }
   },
   {
     id: 3,
@@ -89,7 +102,14 @@ export const squadPlayers = [
     price: 14.2,
     form: 'WWWLW',
     points: 92,
-    selected: false
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 27,
+      assists: 5,
+      minutesPlayed: 2280,
+      shotsOnTarget: 62
+    }
   },
   {
     id: 4,
@@ -99,7 +119,14 @@ export const squadPlayers = [
     price: 9.5,
     form: 'WWDLW',
     points: 80,
-    selected: false
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 14,
+      assists: 12,
+      minutesPlayed: 2420,
+      shotsOnTarget: 38
+    }
   },
   {
     id: 5,
@@ -109,37 +136,474 @@ export const squadPlayers = [
     price: 8.7,
     form: 'WDWWL',
     points: 75,
-    selected: false
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 3,
+      assists: 1,
+      minutesPlayed: 2520,
+      cleanSheets: 12
+    }
   },
   {
     id: 6,
+    name: 'Trent Alexander-Arnold',
+    position: 'Defender',
+    team: 'Liverpool',
+    price: 8.2,
+    form: 'WDWWL',
+    points: 73,
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 2,
+      assists: 14,
+      minutesPlayed: 2340,
+      cleanSheets: 10
+    }
+  },
+  {
+    id: 7,
+    name: 'Martin Ødegaard',
+    position: 'Midfielder',
+    team: 'Arsenal',
+    price: 9.8,
+    form: 'WWDWD',
+    points: 82,
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 10,
+      assists: 9,
+      minutesPlayed: 2450,
+      shotsOnTarget: 35
+    }
+  },
+  {
+    id: 8,
+    name: 'Alisson Becker',
+    position: 'Goalkeeper',
+    team: 'Liverpool',
+    price: 7.5,
+    form: 'WDWWL',
+    points: 68,
+    selected: false,
+    sport: 'football',
+    stats: {
+      cleanSheets: 14,
+      saves: 98,
+      minutesPlayed: 2610,
+      penaltiesSaved: 3
+    }
+  },
+  {
+    id: 9,
+    name: 'Harry Kane',
+    position: 'Forward',
+    team: 'Bayern Munich',
+    price: 11.8,
+    form: 'WWDLW',
+    points: 84,
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 24,
+      assists: 8,
+      minutesPlayed: 2500,
+      shotsOnTarget: 56
+    }
+  },
+  {
+    id: 10,
+    name: 'Bruno Fernandes',
+    position: 'Midfielder',
+    team: 'Man United',
+    price: 10.2,
+    form: 'DLWWL',
+    points: 76,
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 9,
+      assists: 12,
+      minutesPlayed: 2580,
+      shotsOnTarget: 42
+    }
+  },
+  {
+    id: 11,
+    name: 'Rodri',
+    position: 'Midfielder',
+    team: 'Man City',
+    price: 8.9,
+    form: 'WWDLW',
+    points: 72,
+    selected: false,
+    sport: 'football',
+    stats: {
+      goals: 5,
+      assists: 7,
+      minutesPlayed: 2490,
+      passAccuracy: 94
+    }
+  },
+  {
+    id: 12,
+    name: 'Ederson',
+    position: 'Goalkeeper',
+    team: 'Man City',
+    price: 7.3,
+    form: 'WWDLW',
+    points: 65,
+    selected: false,
+    sport: 'football',
+    stats: {
+      cleanSheets: 12,
+      saves: 78,
+      minutesPlayed: 2520,
+      penaltiesSaved: 1
+    }
+  },
+  // Cricket players
+  {
+    id: 13,
     name: 'Babar Azam',
     position: 'Batsman',
     team: 'Karachi Kings',
     price: 11.2,
     form: 'WLWWD',
     points: 88,
-    selected: false
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 520,
+      avg: 48.5,
+      strikeRate: 138.2,
+      centuries: 2
+    }
   },
   {
-    id: 7,
+    id: 14,
     name: 'Shaheen Afridi',
     position: 'Bowler',
     team: 'Lahore Qalandars',
     price: 9.8,
     form: 'WWLLD',
     points: 82,
-    selected: false
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      wickets: 18,
+      economy: 7.2,
+      bowling_avg: 18.4,
+      bestBowling: '4/22'
+    }
   },
   {
-    id: 8,
+    id: 15,
     name: 'Rashid Khan',
     position: 'Bowler',
     team: 'Lahore Qalandars',
     price: 10.5,
     form: 'WWLLD',
     points: 84,
-    selected: false
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      wickets: 16,
+      economy: 6.8,
+      bowling_avg: 17.2,
+      bestBowling: '4/19'
+    }
+  },
+  {
+    id: 16,
+    name: 'Virat Kohli',
+    position: 'Batsman',
+    team: 'Royal Challengers',
+    price: 12.8,
+    form: 'WWWDL',
+    points: 90,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 580,
+      avg: 52.7,
+      strikeRate: 142.8,
+      centuries: 3
+    }
+  },
+  {
+    id: 17,
+    name: 'Jasprit Bumrah',
+    position: 'Bowler',
+    team: 'Mumbai Indians',
+    price: 10.2,
+    form: 'LWWWD',
+    points: 86,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      wickets: 21,
+      economy: 6.3,
+      bowling_avg: 16.8,
+      bestBowling: '5/18'
+    }
+  },
+  {
+    id: 18,
+    name: 'Jos Buttler',
+    position: 'Wicketkeeper',
+    team: 'Rajasthan Royals',
+    price: 10.8,
+    form: 'WLWWW',
+    points: 85,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 490,
+      avg: 44.5,
+      strikeRate: 153.6,
+      dismissals: 18
+    }
+  },
+  {
+    id: 19,
+    name: 'Andre Russell',
+    position: 'All-rounder',
+    team: 'Kolkata Knight Riders',
+    price: 11.5,
+    form: 'WWDLW',
+    points: 87,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 320,
+      wickets: 14,
+      strikeRate: 178.2,
+      economy: 8.9
+    }
+  },
+  {
+    id: 20,
+    name: 'Kane Williamson',
+    position: 'Batsman',
+    team: 'Sunrisers Hyderabad',
+    price: 9.6,
+    form: 'LDWWW',
+    points: 79,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 410,
+      avg: 41.0,
+      strikeRate: 132.5,
+      centuries: 1
+    }
+  },
+  {
+    id: 21,
+    name: 'Hardik Pandya',
+    position: 'All-rounder',
+    team: 'Mumbai Indians',
+    price: 10.8,
+    form: 'WLWDW',
+    points: 84,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 350,
+      wickets: 12,
+      strikeRate: 168.3,
+      economy: 8.4
+    }
+  },
+  {
+    id: 22,
+    name: 'Trent Boult',
+    position: 'Bowler',
+    team: 'Rajasthan Royals',
+    price: 9.4,
+    form: 'WWLWD',
+    points: 80,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      wickets: 17,
+      economy: 7.6,
+      bowling_avg: 18.9,
+      bestBowling: '4/25'
+    }
+  },
+  {
+    id: 23,
+    name: 'Shadab Khan',
+    position: 'All-rounder',
+    team: 'Islamabad United',
+    price: 9.2,
+    form: 'WLWWD',
+    points: 78,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 280,
+      wickets: 15,
+      strikeRate: 145.7,
+      economy: 7.8
+    }
+  },
+  {
+    id: 24,
+    name: 'Mohammad Rizwan',
+    position: 'Wicketkeeper',
+    team: 'Multan Sultans',
+    price: 10.4,
+    form: 'WWWLD',
+    points: 83,
+    selected: false,
+    sport: 'cricket',
+    stats: {
+      runs: 450,
+      avg: 42.8,
+      strikeRate: 137.5,
+      dismissals: 15
+    }
+  }
+];
+
+// Football formations
+export const footballFormations = [
+  {
+    name: '4-3-3',
+    positions: [
+      { id: 'Goalkeeper', name: 'GK', x: 50, y: 90 },
+      { id: 'Defender', name: 'LB', x: 20, y: 75 },
+      { id: 'Defender', name: 'CB', x: 40, y: 75 },
+      { id: 'Defender', name: 'CB', x: 60, y: 75 },
+      { id: 'Defender', name: 'RB', x: 80, y: 75 },
+      { id: 'Midfielder', name: 'CM', x: 30, y: 55 },
+      { id: 'Midfielder', name: 'CM', x: 50, y: 50 },
+      { id: 'Midfielder', name: 'CM', x: 70, y: 55 },
+      { id: 'Forward', name: 'LW', x: 25, y: 30 },
+      { id: 'Forward', name: 'ST', x: 50, y: 25 },
+      { id: 'Forward', name: 'RW', x: 75, y: 30 }
+    ]
+  },
+  {
+    name: '4-4-2',
+    positions: [
+      { id: 'Goalkeeper', name: 'GK', x: 50, y: 90 },
+      { id: 'Defender', name: 'LB', x: 20, y: 75 },
+      { id: 'Defender', name: 'CB', x: 40, y: 75 },
+      { id: 'Defender', name: 'CB', x: 60, y: 75 },
+      { id: 'Defender', name: 'RB', x: 80, y: 75 },
+      { id: 'Midfielder', name: 'LM', x: 20, y: 50 },
+      { id: 'Midfielder', name: 'CM', x: 40, y: 50 },
+      { id: 'Midfielder', name: 'CM', x: 60, y: 50 },
+      { id: 'Midfielder', name: 'RM', x: 80, y: 50 },
+      { id: 'Forward', name: 'ST', x: 40, y: 25 },
+      { id: 'Forward', name: 'ST', x: 60, y: 25 }
+    ]
+  },
+  {
+    name: '3-5-2',
+    positions: [
+      { id: 'Goalkeeper', name: 'GK', x: 50, y: 90 },
+      { id: 'Defender', name: 'CB', x: 30, y: 75 },
+      { id: 'Defender', name: 'CB', x: 50, y: 75 },
+      { id: 'Defender', name: 'CB', x: 70, y: 75 },
+      { id: 'Midfielder', name: 'LWB', x: 15, y: 60 },
+      { id: 'Midfielder', name: 'CM', x: 30, y: 50 },
+      { id: 'Midfielder', name: 'CM', x: 50, y: 50 },
+      { id: 'Midfielder', name: 'CM', x: 70, y: 50 },
+      { id: 'Midfielder', name: 'RWB', x: 85, y: 60 },
+      { id: 'Forward', name: 'ST', x: 40, y: 25 },
+      { id: 'Forward', name: 'ST', x: 60, y: 25 }
+    ]
+  },
+  {
+    name: '4-2-3-1',
+    positions: [
+      { id: 'Goalkeeper', name: 'GK', x: 50, y: 90 },
+      { id: 'Defender', name: 'LB', x: 20, y: 75 },
+      { id: 'Defender', name: 'CB', x: 40, y: 75 },
+      { id: 'Defender', name: 'CB', x: 60, y: 75 },
+      { id: 'Defender', name: 'RB', x: 80, y: 75 },
+      { id: 'Midfielder', name: 'CDM', x: 40, y: 60 },
+      { id: 'Midfielder', name: 'CDM', x: 60, y: 60 },
+      { id: 'Midfielder', name: 'CAM', x: 50, y: 45 },
+      { id: 'Midfielder', name: 'LW', x: 25, y: 40 },
+      { id: 'Midfielder', name: 'RW', x: 75, y: 40 },
+      { id: 'Forward', name: 'ST', x: 50, y: 25 }
+    ]
+  }
+];
+
+// Cricket formations
+export const cricketFormations = [
+  {
+    name: 'Standard XI',
+    positions: [
+      { id: 'Batsman', name: 'Opener', x: 25, y: 20 },
+      { id: 'Batsman', name: 'Opener', x: 40, y: 20 },
+      { id: 'Batsman', name: 'No.3', x: 55, y: 20 },
+      { id: 'Batsman', name: 'No.4', x: 70, y: 20 },
+      { id: 'Wicketkeeper', name: 'WK', x: 20, y: 40 },
+      { id: 'All-rounder', name: 'AR', x: 40, y: 40 },
+      { id: 'All-rounder', name: 'AR', x: 60, y: 40 },
+      { id: 'Bowler', name: 'Bowler', x: 20, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 40, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 60, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 80, y: 60 }
+    ]
+  },
+  {
+    name: 'Batting Heavy',
+    positions: [
+      { id: 'Batsman', name: 'Opener', x: 25, y: 20 },
+      { id: 'Batsman', name: 'Opener', x: 40, y: 20 },
+      { id: 'Batsman', name: 'No.3', x: 55, y: 20 },
+      { id: 'Batsman', name: 'No.4', x: 70, y: 20 },
+      { id: 'Batsman', name: 'No.5', x: 85, y: 20 },
+      { id: 'Wicketkeeper', name: 'WK', x: 30, y: 40 },
+      { id: 'All-rounder', name: 'AR', x: 50, y: 40 },
+      { id: 'All-rounder', name: 'AR', x: 70, y: 40 },
+      { id: 'Bowler', name: 'Bowler', x: 30, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 50, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 70, y: 60 }
+    ]
+  },
+  {
+    name: 'Bowling Heavy',
+    positions: [
+      { id: 'Batsman', name: 'Opener', x: 30, y: 20 },
+      { id: 'Batsman', name: 'Opener', x: 50, y: 20 },
+      { id: 'Batsman', name: 'No.3', x: 70, y: 20 },
+      { id: 'Wicketkeeper', name: 'WK', x: 40, y: 40 },
+      { id: 'All-rounder', name: 'AR', x: 60, y: 40 },
+      { id: 'Bowler', name: 'Bowler', x: 20, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 35, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 50, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 65, y: 60 },
+      { id: 'Bowler', name: 'Bowler', x: 80, y: 60 },
+      { id: 'Bowler', name: 'Spinner', x: 50, y: 80 }
+    ]
+  },
+  {
+    name: 'Balanced XI',
+    positions: [
+      { id: 'Batsman', name: 'Opener', x: 30, y: 20 },
+      { id: 'Batsman', name: 'Opener', x: 50, y: 20 },
+      { id: 'Batsman', name: 'No.3', x: 70, y: 20 },
+      { id: 'Batsman', name: 'No.4', x: 40, y: 35 },
+      { id: 'Wicketkeeper', name: 'WK', x: 60, y: 35 },
+      { id: 'All-rounder', name: 'AR', x: 30, y: 50 },
+      { id: 'All-rounder', name: 'AR', x: 50, y: 50 },
+      { id: 'All-rounder', name: 'AR', x: 70, y: 50 },
+      { id: 'Bowler', name: 'Pacer', x: 30, y: 70 },
+      { id: 'Bowler', name: 'Spinner', x: 50, y: 70 },
+      { id: 'Bowler', name: 'Pacer', x: 70, y: 70 }
+    ]
   }
 ];
 
