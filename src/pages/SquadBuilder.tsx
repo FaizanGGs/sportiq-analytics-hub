@@ -39,7 +39,12 @@ const SquadBuilder = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [budget, setBudget] = useState(100.0);
   const [selectedPlayers, setSelectedPlayers] = useState<PlayerCard[]>([]);
-  const [availablePlayers, setAvailablePlayers] = useState<PlayerCard[]>(squadPlayers);
+  const [availablePlayers, setAvailablePlayers] = useState<PlayerCard[]>(
+    squadPlayers.map(player => ({
+      ...player,
+      sport: player.sport as 'football' | 'cricket'
+    })) as PlayerCard[]
+  );
   const [activeSport, setActiveSport] = useState<'football' | 'cricket'>('football');
   const [currentFormation, setCurrentFormation] = useState<Formation>(
     activeSport === 'football' ? footballFormations[0] : cricketFormations[0]
@@ -97,7 +102,13 @@ const SquadBuilder = () => {
     setSelectedPlayers([]);
     setBudget(100.0);
     setCurrentFormation(sport === 'football' ? footballFormations[0] : cricketFormations[0]);
-    setAvailablePlayers(squadPlayers.map(p => ({ ...p, selected: false })));
+    setAvailablePlayers(
+      squadPlayers.map(player => ({
+        ...player,
+        selected: false,
+        sport: player.sport as 'football' | 'cricket'
+      })) as PlayerCard[]
+    );
   };
 
   // Update budget

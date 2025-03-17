@@ -69,7 +69,7 @@ export const squadPlayers = [
     form: 'WDWWL',
     points: 85,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 22,
       assists: 13,
@@ -86,7 +86,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 78,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 8,
       assists: 18,
@@ -103,7 +103,7 @@ export const squadPlayers = [
     form: 'WWWLW',
     points: 92,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 27,
       assists: 5,
@@ -120,7 +120,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 80,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 14,
       assists: 12,
@@ -137,7 +137,7 @@ export const squadPlayers = [
     form: 'WDWWL',
     points: 75,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 3,
       assists: 1,
@@ -154,7 +154,7 @@ export const squadPlayers = [
     form: 'WDWWL',
     points: 73,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 2,
       assists: 14,
@@ -171,7 +171,7 @@ export const squadPlayers = [
     form: 'WWDWD',
     points: 82,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 10,
       assists: 9,
@@ -188,7 +188,7 @@ export const squadPlayers = [
     form: 'WDWWL',
     points: 68,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       cleanSheets: 14,
       saves: 98,
@@ -205,7 +205,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 84,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 24,
       assists: 8,
@@ -222,7 +222,7 @@ export const squadPlayers = [
     form: 'DLWWL',
     points: 76,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 9,
       assists: 12,
@@ -239,7 +239,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 72,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       goals: 5,
       assists: 7,
@@ -256,7 +256,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 65,
     selected: false,
-    sport: 'football',
+    sport: 'football' as const,
     stats: {
       cleanSheets: 12,
       saves: 78,
@@ -274,7 +274,7 @@ export const squadPlayers = [
     form: 'WLWWD',
     points: 88,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 520,
       avg: 48.5,
@@ -291,7 +291,7 @@ export const squadPlayers = [
     form: 'WWLLD',
     points: 82,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       wickets: 18,
       economy: 7.2,
@@ -308,7 +308,7 @@ export const squadPlayers = [
     form: 'WWLLD',
     points: 84,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       wickets: 16,
       economy: 6.8,
@@ -325,7 +325,7 @@ export const squadPlayers = [
     form: 'WWWDL',
     points: 90,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 580,
       avg: 52.7,
@@ -342,7 +342,7 @@ export const squadPlayers = [
     form: 'LWWWD',
     points: 86,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       wickets: 21,
       economy: 6.3,
@@ -359,7 +359,7 @@ export const squadPlayers = [
     form: 'WLWWW',
     points: 85,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 490,
       avg: 44.5,
@@ -376,7 +376,7 @@ export const squadPlayers = [
     form: 'WWDLW',
     points: 87,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 320,
       wickets: 14,
@@ -393,7 +393,7 @@ export const squadPlayers = [
     form: 'LDWWW',
     points: 79,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 410,
       avg: 41.0,
@@ -410,7 +410,7 @@ export const squadPlayers = [
     form: 'WLWDW',
     points: 84,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 350,
       wickets: 12,
@@ -427,7 +427,7 @@ export const squadPlayers = [
     form: 'WWLWD',
     points: 80,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       wickets: 17,
       economy: 7.6,
@@ -444,7 +444,7 @@ export const squadPlayers = [
     form: 'WLWWD',
     points: 78,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 280,
       wickets: 15,
@@ -461,7 +461,7 @@ export const squadPlayers = [
     form: 'WWWLD',
     points: 83,
     selected: false,
-    sport: 'cricket',
+    sport: 'cricket' as const,
     stats: {
       runs: 450,
       avg: 42.8,
