@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, Users, Activity, ChevronRight } from 'lucide-react';
 import { Line } from 'recharts';
+import { cn } from '@/lib/utils';
 import GlassCard from '@/components/ui/GlassCard';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
