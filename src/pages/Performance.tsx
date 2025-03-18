@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { squadPlayers, performanceStats } from '@/data/sampleData';
 
 type PlayerType = {
@@ -221,7 +221,7 @@ const Performance = () => {
       <div className="flex-1 flex flex-col min-h-screen">
         <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
         
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <h1 className="text-3xl font-bold text-gradient">Player Performance</h1>
@@ -692,38 +692,82 @@ const Performance = () => {
                       <>
                         <GlassCard className="p-4">
                           <h3 className="text-lg font-bold mb-4">Player Comparison: {comparisonPlayers.map(p => p.name).join(' vs ')}</h3>
-                          <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart
-                                data={generateComparisonData()}
-                                margin={{
-                                  top: 20,
-                                  right: 30,
-                                  left: 20,
-                                  bottom: 5,
-                                }}
-                                layout="vertical"
-                              >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                <XAxis type="number" stroke={chartColors.text} />
-                                <YAxis dataKey="name" type="category" stroke={chartColors.text} />
-                                <Tooltip 
-                                  contentStyle={{ 
-                                    backgroundColor: chartColors.background, 
-                                    color: chartColors.text,
-                                    border: `1px solid ${chartColors.primary}`
-                                  }}
-                                />
-                                <Legend wrapperStyle={{ color: chartColors.text }} />
-                                {comparisonPlayers.map((player, index) => (
-                                  <Bar 
-                                    key={player.id} 
-                                    dataKey={player.name} 
-                                    fill={COLORS[index % COLORS.length]} 
-                                  />
-                                ))}
-                              </BarChart>
-                            </ResponsiveContainer>
+                          
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Statistic</TableHead>
+                                  {comparisonPlayers.map(player => (
+                                    <TableHead key={player.id} className="text-center">{player.name}</TableHead>
+                                  ))}
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="font-medium">Points</TableCell>
+                                  {comparisonPlayers.map(player => (
+                                    <TableCell key={player.id} className="text-center">{player.points}</TableCell>
+                                  ))}
+                                </TableRow>
+                                {selectedSport === 'football' && (
+                                  <>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Goals</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.goals || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Assists</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.assists || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Minutes</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.minutesPlayed || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                  </>
+                                )}
+                                {selectedSport === 'cricket' && (
+                                  <>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Runs</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.runs || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Wickets</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.wickets || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Economy</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">{player.stats?.economy || 0}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                  </>
+                                )}
+                                <TableRow>
+                                  <TableCell className="font-medium">Form</TableCell>
+                                  {comparisonPlayers.map(player => (
+                                    <TableCell key={player.id} className="text-center">{player.form}</TableCell>
+                                  ))}
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell className="font-medium">Price</TableCell>
+                                  {comparisonPlayers.map(player => (
+                                    <TableCell key={player.id} className="text-center">��{player.price}m</TableCell>
+                                  ))}
+                                </TableRow>
+                              </TableBody>
+                            </Table>
                           </div>
                         </GlassCard>
                         
@@ -757,42 +801,29 @@ const Performance = () => {
                           </GlassCard>
                           
                           <GlassCard className="p-4">
-                            <h3 className="text-lg font-bold mb-4">Form Comparison</h3>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                  margin={{
-                                    top: 5,
-                                    right: 30,
-                                    left: 20,
-                                    bottom: 5,
-                                  }}
-                                >
-                                  <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                  <XAxis dataKey="match" stroke={chartColors.text} />
-                                  <YAxis stroke={chartColors.text} />
-                                  <Tooltip 
-                                    contentStyle={{ 
-                                      backgroundColor: chartColors.background, 
-                                      color: chartColors.text,
-                                      border: `1px solid ${chartColors.primary}`
-                                    }}
-                                  />
-                                  <Legend wrapperStyle={{ color: chartColors.text }} />
-                                  {comparisonPlayers.map((player, index) => (
-                                    <Line
-                                      key={player.id}
-                                      data={generatePlayerPerformanceData(player)}
-                                      type="monotone"
-                                      dataKey="value"
-                                      name={player.name}
-                                      stroke={COLORS[index % COLORS.length]}
-                                      strokeWidth={2}
-                                      activeDot={{ r: 8 }}
-                                    />
-                                  ))}
-                                </LineChart>
-                              </ResponsiveContainer>
+                            <h3 className="text-lg font-bold mb-4">Player Details</h3>
+                            <div className="space-y-3">
+                              {comparisonPlayers.map((player) => (
+                                <div key={player.id} className="bg-sportiq-lightgray/20 p-3 rounded-lg">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <p className="font-medium">{player.name}</p>
+                                    <p className="text-sm bg-sportiq-blue/20 text-sportiq-blue px-2 py-0.5 rounded">
+                                      {player.position}
+                                    </p>
+                                  </div>
+                                  <p className="text-sm text-white/70">{player.team}</p>
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <span className="flex items-center gap-1 text-sm bg-sportiq-lightgray/30 px-2 py-0.5 rounded">
+                                      <DollarSign className="h-3 w-3" />
+                                      £{player.price}m
+                                    </span>
+                                    <span className="flex items-center gap-1 text-sm bg-sportiq-lightgray/30 px-2 py-0.5 rounded">
+                                      <TrendingUp className="h-3 w-3" />
+                                      {player.form}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </GlassCard>
                         </div>
