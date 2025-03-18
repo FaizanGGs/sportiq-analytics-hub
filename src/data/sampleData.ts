@@ -1,3 +1,4 @@
+
 export const recentMatches = [
   {
     id: 1,
@@ -756,5 +757,283 @@ export const teams = [
     rating: 7.5,
     lastResult: 'Loss',
     squadSize: 19
+  }
+];
+
+// League data
+export const leagues = [
+  {
+    id: 1,
+    name: 'English Premier League',
+    shortName: 'EPL',
+    country: 'England',
+    logo: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    teams: 20,
+    currentSeason: '2023/24',
+    type: 'football',
+    popularity: 95,
+    description: 'The Premier League is the top tier of English football, featuring 20 teams competing for the championship.',
+    startDate: '2023-08-11',
+    endDate: '2024-05-19',
+    matchesPlayed: 26,
+    topScorer: 'Erling Haaland',
+    recentForm: 'High scoring, competitive matches in recent weeks',
+    predictionAccuracy: 76,
+    standings: [
+      { position: 1, team: 'Arsenal', played: 26, won: 19, drawn: 4, lost: 3, points: 61 },
+      { position: 2, team: 'Liverpool', played: 26, won: 18, drawn: 6, lost: 2, points: 60 },
+      { position: 3, team: 'Man City', played: 26, won: 18, drawn: 5, lost: 3, points: 59 },
+      { position: 4, team: 'Chelsea', played: 26, won: 13, drawn: 6, lost: 7, points: 45 }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Pakistan Super League',
+    shortName: 'PSL',
+    country: 'Pakistan',
+    logo: '🇵🇰',
+    teams: 6,
+    currentSeason: '2023/24',
+    type: 'cricket',
+    popularity: 82,
+    description: 'The Pakistan Super League is a professional Twenty20 cricket league contested by six teams representing cities in Pakistan.',
+    startDate: '2024-02-17',
+    endDate: '2024-03-18',
+    matchesPlayed: 14,
+    topScorer: 'Babar Azam',
+    recentForm: 'High run-scoring matches with close finishes',
+    predictionAccuracy: 72,
+    standings: [
+      { position: 1, team: 'Karachi Kings', played: 7, won: 5, lost: 2, points: 10 },
+      { position: 2, team: 'Lahore Qalandars', played: 7, won: 4, lost: 3, points: 8 },
+      { position: 3, team: 'Multan Sultans', played: 7, won: 4, lost: 3, points: 8 },
+      { position: 4, team: 'Islamabad United', played: 7, won: 3, lost: 4, points: 6 }
+    ]
+  },
+  {
+    id: 3,
+    name: 'La Liga',
+    shortName: 'La Liga',
+    country: 'Spain',
+    logo: '🇪🇸',
+    teams: 20,
+    currentSeason: '2023/24',
+    type: 'football',
+    popularity: 90,
+    description: 'La Liga is the top professional football division of the Spanish football league system.',
+    startDate: '2023-08-11',
+    endDate: '2024-05-26',
+    matchesPlayed: 26,
+    topScorer: 'Robert Lewandowski',
+    recentForm: 'Tactical matches with strong defensive performances',
+    predictionAccuracy: 74,
+    standings: [
+      { position: 1, team: 'Real Madrid', played: 26, won: 20, drawn: 5, lost: 1, points: 65 },
+      { position: 2, team: 'Barcelona', played: 26, won: 17, drawn: 5, lost: 4, points: 56 },
+      { position: 3, team: 'Atlético Madrid', played: 26, won: 16, drawn: 3, lost: 7, points: 51 },
+      { position: 4, team: 'Girona', played: 26, won: 15, drawn: 5, lost: 6, points: 50 }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Indian Premier League',
+    shortName: 'IPL',
+    country: 'India',
+    logo: '🇮🇳',
+    teams: 10,
+    currentSeason: '2024',
+    type: 'cricket',
+    popularity: 93,
+    description: 'The Indian Premier League is a professional Twenty20 cricket league in India contested during March or April and May of every year by teams representing Indian cities.',
+    startDate: '2024-03-22',
+    endDate: '2024-05-26',
+    matchesPlayed: 12,
+    topScorer: 'Virat Kohli',
+    recentForm: 'High-scoring matches with strong batting performances',
+    predictionAccuracy: 68,
+    standings: [
+      { position: 1, team: 'Mumbai Indians', played: 6, won: 5, lost: 1, points: 10 },
+      { position: 2, team: 'Royal Challengers', played: 6, won: 4, lost: 2, points: 8 },
+      { position: 3, team: 'Rajasthan Royals', played: 6, won: 4, lost: 2, points: 8 },
+      { position: 4, team: 'Kolkata Knight Riders', played: 6, won: 3, lost: 3, points: 6 }
+    ]
+  },
+  {
+    id: 5,
+    name: 'Bundesliga',
+    shortName: 'BL',
+    country: 'Germany',
+    logo: '🇩🇪',
+    teams: 18,
+    currentSeason: '2023/24',
+    type: 'football',
+    popularity: 85,
+    description: 'The Bundesliga is a professional association football league in Germany and the football league with the highest average stadium attendance worldwide.',
+    startDate: '2023-08-18',
+    endDate: '2024-05-18',
+    matchesPlayed: 24,
+    topScorer: 'Harry Kane',
+    recentForm: 'High scoring, attacking football with many goals',
+    predictionAccuracy: 72,
+    standings: [
+      { position: 1, team: 'Bayern Munich', played: 24, won: 17, drawn: 3, lost: 4, points: 54 },
+      { position: 2, team: 'Bayer Leverkusen', played: 24, won: 16, drawn: 5, lost: 3, points: 53 },
+      { position: 3, team: 'RB Leipzig', played: 24, won: 14, drawn: 4, lost: 6, points: 46 },
+      { position: 4, team: 'Borussia Dortmund', played: 24, won: 12, drawn: 6, lost: 6, points: 42 }
+    ]
+  },
+  {
+    id: 6,
+    name: 'Big Bash League',
+    shortName: 'BBL',
+    country: 'Australia',
+    logo: '🇦🇺',
+    teams: 8,
+    currentSeason: '2023/24',
+    type: 'cricket',
+    popularity: 78,
+    description: 'The Big Bash League is an Australian professional franchise Twenty20 cricket league.',
+    startDate: '2023-12-07',
+    endDate: '2024-01-27',
+    matchesPlayed: 56,
+    topScorer: 'Glenn Maxwell',
+    recentForm: 'Fast-paced matches with excellent bowling',
+    predictionAccuracy: 70,
+    standings: [
+      { position: 1, team: 'Perth Scorchers', played: 14, won: 10, lost: 4, points: 20 },
+      { position: 2, team: 'Sydney Sixers', played: 14, won: 9, lost: 5, points: 18 },
+      { position: 3, team: 'Brisbane Heat', played: 14, won: 8, lost: 6, points: 16 },
+      { position: 4, team: 'Melbourne Stars', played: 14, won: 7, lost: 7, points: 14 }
+    ]
+  }
+];
+
+// Schedule data for the Schedules page
+export const schedules = [
+  {
+    id: 1,
+    league: 'EPL',
+    date: '2024-03-20',
+    time: '19:45',
+    homeTeam: 'Arsenal',
+    awayTeam: 'Chelsea',
+    venue: 'Emirates Stadium',
+    type: 'football',
+    prediction: {
+      homeWin: 60,
+      draw: 25,
+      awayWin: 15
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 2,
+    league: 'EPL',
+    date: '2024-03-24',
+    time: '16:30',
+    homeTeam: 'Liverpool',
+    awayTeam: 'Man City',
+    venue: 'Anfield',
+    type: 'football',
+    prediction: {
+      homeWin: 35,
+      draw: 40,
+      awayWin: 25
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 3,
+    league: 'PSL',
+    date: '2024-03-20',
+    time: '14:00',
+    homeTeam: 'Karachi Kings',
+    awayTeam: 'Multan Sultans',
+    venue: 'National Stadium',
+    type: 'cricket',
+    prediction: {
+      homeWin: 30,
+      draw: 0,
+      awayWin: 70
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 4,
+    league: 'PSL',
+    date: '2024-03-23',
+    time: '19:00',
+    homeTeam: 'Lahore Qalandars',
+    awayTeam: 'Islamabad United',
+    venue: 'Gaddafi Stadium',
+    type: 'cricket',
+    prediction: {
+      homeWin: 70,
+      draw: 0,
+      awayWin: 30
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 5,
+    league: 'La Liga',
+    date: '2024-03-21',
+    time: '20:00',
+    homeTeam: 'Barcelona',
+    awayTeam: 'Real Madrid',
+    venue: 'Camp Nou',
+    type: 'football',
+    prediction: {
+      homeWin: 45,
+      draw: 30,
+      awayWin: 25
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 6,
+    league: 'IPL',
+    date: '2024-03-22',
+    time: '15:30',
+    homeTeam: 'Mumbai Indians',
+    awayTeam: 'Royal Challengers',
+    venue: 'Wankhede Stadium',
+    type: 'cricket',
+    prediction: {
+      homeWin: 55,
+      draw: 0,
+      awayWin: 45
+    },
+    status: 'upcoming'
+  },
+  {
+    id: 7,
+    league: 'EPL',
+    date: '2024-03-16',
+    time: '15:00',
+    homeTeam: 'Man United',
+    awayTeam: 'Tottenham',
+    venue: 'Old Trafford',
+    type: 'football',
+    result: {
+      homeScore: 2,
+      awayScore: 2
+    },
+    status: 'completed'
+  },
+  {
+    id: 8,
+    league: 'PSL',
+    date: '2024-03-17',
+    time: '19:00',
+    homeTeam: 'Islamabad United',
+    awayTeam: 'Karachi Kings',
+    venue: 'Rawalpindi Cricket Stadium',
+    type: 'cricket',
+    result: {
+      homeScore: 180,
+      awayScore: 162
+    },
+    status: 'completed'
   }
 ];

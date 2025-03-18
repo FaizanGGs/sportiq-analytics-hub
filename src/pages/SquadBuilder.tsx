@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Shield, User, PlusCircle, AlertTriangle, DollarSign, BarChart2, RefreshCcw, Search, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,14 +25,22 @@ type PlayerCard = {
   };
 };
 
+type Position = {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+};
+
 type Formation = {
   name: string;
-  positions: {
-    id: string;
-    name: string;
-    x: number;
-    y: number;
-  }[];
+  positions: Position[];
+};
+
+type PositionAssignment = {
+  positionId: string;
+  positionName: string;
+  playerId: number | null;
 };
 
 const SquadBuilder = () => {
@@ -49,6 +58,7 @@ const SquadBuilder = () => {
   const [currentFormation, setCurrentFormation] = useState<Formation>(
     activeSport === 'football' ? footballFormations[0] : cricketFormations[0]
   );
+  const [positionAssignments, setPositionAssignments] = useState<PositionAssignment[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [compareMode, setCompareMode] = useState(false);
@@ -56,10 +66,31 @@ const SquadBuilder = () => {
   const [customBudget, setCustomBudget] = useState(budget.toString());
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   
-  // Update current formation when active sport changes
+  // Update current formation and position assignments when active sport changes
   useEffect(() => {
-    setCurrentFormation(activeSport === 'football' ? footballFormations[0] : cricketFormations[0]);
+    const newFormation = activeSport === 'football' ? footballFormations[0] : cricketFormations[0];
+    setCurrentFormation(newFormation);
+    
+    // Initialize position assignments for the new formation
+    initializePositionAssignments(newFormation.positions);
   }, [activeSport]);
+
+  // Update position assignments when changing formation
+  useEffect(() => {
+    initializePositionAssignments(currentFormation.positions);
+  }, [currentFormation]);
+
+  // Initialize position assignments
+  const initializePositionAssignments = (positions: Position[]) => {
+    const newAssignments = positions.map(position => ({
+      positionId: position.id,
+      positionName: position.name,
+      playerId: null
+    }));
+    
+    setPositionAssignments(newAssignments);
+    setSelectedPlayers([]);
+  };
 
   // Toggle player selection
   const togglePlayerSelection = (player: PlayerCard) => {
@@ -75,37 +106,61 @@ const SquadBuilder = () => {
         return;
       }
       
-      // Check if position already filled
-      const positionAlreadyFilled = selectedPlayers.some(p => p.position === selectedPosition);
-      if (positionAlreadyFilled) {
-        // Remove the player in that position first
-        const playerToRemove = selectedPlayers.find(p => p.position === selectedPosition);
-        if (playerToRemove) {
-          setSelectedPlayers(selectedPlayers.filter(p => p.id !== playerToRemove.id));
+      // Find the position assignment
+      const assignment = positionAssignments.find(a => a.positionId === selectedPosition);
+      if (!assignment) return;
+      
+      // If position already has a player, remove that player first
+      if (assignment.playerId !== null) {
+        const existingPlayer = selectedPlayers.find(p => p.id === assignment.playerId);
+        if (existingPlayer) {
+          setSelectedPlayers(selectedPlayers.filter(p => p.id !== existingPlayer.id));
           setAvailablePlayers(availablePlayers.map(p => 
-            p.id === playerToRemove.id ? { ...p, selected: false } : p
+            p.id === existingPlayer.id ? { ...p, selected: false } : p
           ));
-          setBudget(prevBudget => prevBudget + playerToRemove.price);
+          setBudget(prevBudget => prevBudget + existingPlayer.price);
         }
       }
       
-      // Add to selection with the selected position
-      const modifiedPlayer = { ...player, selected: true, position: selectedPosition };
-      setSelectedPlayers([...selectedPlayers, modifiedPlayer]);
+      // Add player to the position
+      const updatedAssignments = positionAssignments.map(a => 
+        a.positionId === selectedPosition ? { ...a, playerId: player.id } : a
+      );
+      setPositionAssignments(updatedAssignments);
+      
+      // Add to selected players
+      const modifiedPlayer = { 
+        ...player, 
+        selected: true, 
+        position: assignment.positionId // Store the position ID
+      };
+      setSelectedPlayers([...selectedPlayers.filter(p => p.id !== player.id), modifiedPlayer]);
+      
+      // Mark player as selected in available players
       setAvailablePlayers(availablePlayers.map(p => 
         p.id === player.id ? { ...p, selected: true } : p
       ));
+      
+      // Update budget
       setBudget(prevBudget => prevBudget - player.price);
-      setSelectedPosition(null); // Clear the position after selection
+      
+      // Clear the position selection
+      setSelectedPosition(null);
       
       toast({
         title: "Player Added",
-        description: `${player.name} has been added to ${selectedPosition}`,
+        description: `${player.name} has been added to ${assignment.positionName}`,
       });
       return;
     }
     
     if (player.selected) {
+      // Remove from position assignments
+      const updatedAssignments = positionAssignments.map(a => 
+        a.playerId === player.id ? { ...a, playerId: null } : a
+      );
+      setPositionAssignments(updatedAssignments);
+      
       // Remove from selection
       setSelectedPlayers(selectedPlayers.filter(p => p.id !== player.id));
       setAvailablePlayers(availablePlayers.map(p => 
@@ -123,10 +178,13 @@ const SquadBuilder = () => {
   // Select a position to add a player to
   const selectPosition = (positionId: string) => {
     setSelectedPosition(positionId);
-    toast({
-      title: "Position Selected",
-      description: `Select a player for the ${positionId} position`,
-    });
+    const position = currentFormation.positions.find(p => p.id === positionId);
+    if (position) {
+      toast({
+        title: "Position Selected",
+        description: `Select a player for the ${position.name} position`,
+      });
+    }
   };
 
   // Toggle compare mode and manage players to compare
@@ -148,10 +206,10 @@ const SquadBuilder = () => {
   // Change sport and reset states
   const changeSport = (sport: 'football' | 'cricket') => {
     setActiveSport(sport);
-    setSelectedPlayers([]);
     setBudget(100.0);
     setSelectedPosition(null);
     setCurrentFormation(sport === 'football' ? footballFormations[0] : cricketFormations[0]);
+    setSelectedPlayers([]);
     setAvailablePlayers(
       squadPlayers.map(player => ({
         ...player,
@@ -173,41 +231,160 @@ const SquadBuilder = () => {
     }
   };
 
-  // Filter available players
-  const filteredPlayers = availablePlayers.filter(player => 
-    player.sport === activeSport && 
-    (player.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     player.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     player.position.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Filter available players based on selected position
+  const filteredPlayers = availablePlayers.filter(player => {
+    // Only show players of the active sport
+    if (player.sport !== activeSport) return false;
+    
+    // Apply search filter
+    const matchesSearch = (
+      player.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      player.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      player.position.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    if (!matchesSearch) return false;
+    
+    // If a position is selected, filter players by appropriate position
+    if (selectedPosition) {
+      const position = currentFormation.positions.find(p => p.id === selectedPosition);
+      if (position) {
+        // Football position filtering
+        if (activeSport === 'football') {
+          // Position mapping
+          if (position.id === 'Goalkeeper' && player.position === 'Goalkeeper') return true;
+          if (position.id === 'Defender' && player.position === 'Defender') return true;
+          if (position.id === 'Midfielder' && player.position === 'Midfielder') return true;
+          if (position.id === 'Forward' && player.position === 'Forward') return true;
+        }
+        // Cricket position filtering
+        else {
+          // Cricket position mapping
+          if (position.id === 'Batsman' && player.position === 'Batsman') return true;
+          if (position.id === 'Bowler' && player.position === 'Bowler') return true;
+          if (position.id === 'Wicketkeeper' && player.position === 'Wicketkeeper') return true;
+          if (position.id === 'All-rounder' && player.position === 'All-rounder') return true;
+        }
+        return false;
+      }
+    }
+    
+    return true;
+  });
 
   // Get player for position
-  const getPlayerForPosition = (positionId: string) => {
-    return selectedPlayers.find(player => 
-      player.position === positionId
-    );
+  const getPlayerForPosition = (positionId: string): PlayerCard | undefined => {
+    const assignment = positionAssignments.find(a => a.positionId === positionId);
+    if (assignment && assignment.playerId !== null) {
+      return selectedPlayers.find(player => player.id === assignment.playerId);
+    }
+    return undefined;
   };
 
-  // Get AI recommendation for player selection
+  // Get AI recommendation for player selection based on position
   const getAIRecommendation = () => {
-    // This would be more sophisticated in a real app
-    const availablePlayersForActiveSport = availablePlayers.filter(p => 
-      p.sport === activeSport && !p.selected
+    if (!selectedPosition) return null;
+    
+    // Position-specific recommendations
+    const positionType = currentFormation.positions.find(p => p.id === selectedPosition)?.id || '';
+    
+    // Filter players by position and availability
+    const availablePlayersForPosition = availablePlayers.filter(p => 
+      p.sport === activeSport && 
+      !p.selected && 
+      // Match the position type (like Defender, Forward, etc.)
+      p.position.includes(positionType)
     );
     
-    if (availablePlayersForActiveSport.length === 0) return null;
+    if (availablePlayersForPosition.length === 0) return null;
     
-    // Sort by points per price (value)
-    const sortedByValue = [...availablePlayersForActiveSport].sort((a, b) => 
-      (b.points / b.price) - (a.points / a.price)
-    );
+    // Sort by different criteria based on position
+    let sortedPlayers: PlayerCard[] = [];
+    
+    if (activeSport === 'football') {
+      if (positionType === 'Forward') {
+        // For forwards prioritize goals
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.stats?.goals as number || 0) - (a.stats?.goals as number || 0)
+        );
+      } else if (positionType === 'Defender') {
+        // For defenders prioritize clean sheets 
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.stats?.cleanSheets as number || 0) - (a.stats?.cleanSheets as number || 0)
+        );
+      } else {
+        // For others, sort by general value (points/price)
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.points / b.price) - (a.points / a.price)
+        );
+      }
+    } else { // Cricket
+      if (positionType === 'Batsman') {
+        // For batsmen prioritize runs
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.stats?.runs as number || 0) - (a.stats?.runs as number || 0)
+        );
+      } else if (positionType === 'Bowler') {
+        // For bowlers prioritize wickets
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.stats?.wickets as number || 0) - (a.stats?.wickets as number || 0)
+        );
+      } else {
+        // For others, sort by general value
+        sortedPlayers = [...availablePlayersForPosition].sort((a, b) => 
+          (b.points / b.price) - (a.points / a.price)
+        );
+      }
+    }
     
     // Get top recommendations
-    return sortedByValue.slice(0, 3);
+    return sortedPlayers.slice(0, 3);
   };
 
   // Recommended players
   const recommendedPlayers = getAIRecommendation();
+
+  // Calculate team balance metrics
+  const calculateTeamBalance = () => {
+    if (selectedPlayers.length === 0) {
+      return {
+        attack: 0,
+        midfield: 0,
+        defense: 0
+      };
+    }
+
+    if (activeSport === 'football') {
+      const forwardCount = selectedPlayers.filter(p => p.position === 'Forward').length;
+      const midfielderCount = selectedPlayers.filter(p => p.position === 'Midfielder').length;
+      const defenderCount = selectedPlayers.filter(p => p.position === 'Defender').length;
+      const gkCount = selectedPlayers.filter(p => p.position === 'Goalkeeper').length;
+      
+      const totalPlayers = selectedPlayers.length;
+      
+      // Calculate ratios (scale up to percentages)
+      return {
+        attack: Math.min(100, forwardCount / (totalPlayers * 0.3) * 100),
+        midfield: Math.min(100, midfielderCount / (totalPlayers * 0.4) * 100),
+        defense: Math.min(100, (defenderCount + gkCount) / (totalPlayers * 0.4) * 100)
+      };
+    } else {
+      // Cricket team balance
+      const batsmanCount = selectedPlayers.filter(p => p.position === 'Batsman').length;
+      const allrounderCount = selectedPlayers.filter(p => p.position === 'All-rounder').length;
+      const bowlerCount = selectedPlayers.filter(p => p.position === 'Bowler').length;
+      
+      const totalPlayers = selectedPlayers.length;
+      
+      return {
+        attack: Math.min(100, batsmanCount / (totalPlayers * 0.4) * 100),
+        midfield: Math.min(100, allrounderCount / (totalPlayers * 0.2) * 100),
+        defense: Math.min(100, bowlerCount / (totalPlayers * 0.4) * 100)
+      };
+    }
+  };
+
+  const teamBalance = calculateTeamBalance();
 
   return (
     <div className="h-full flex bg-sportiq-black text-white">
@@ -306,7 +483,9 @@ const SquadBuilder = () => {
                     <h3 className="text-lg font-semibold">Formation: {currentFormation.name}</h3>
                     {selectedPosition && (
                       <div className="bg-sportiq-green/20 text-sportiq-green px-3 py-1 rounded-md text-sm">
-                        Select a player for position: {selectedPosition}
+                        Select a player for position: {
+                          currentFormation.positions.find(p => p.id === selectedPosition)?.name || selectedPosition
+                        }
                       </div>
                     )}
                   </div>
@@ -324,7 +503,7 @@ const SquadBuilder = () => {
                         const player = getPlayerForPosition(position.id);
                         return (
                           <div 
-                            key={position.id}
+                            key={`${currentFormation.name}-${position.id}-${position.name}`}
                             className={cn(
                               "absolute w-14 h-14 -ml-7 -mt-7 rounded-full flex items-center justify-center transition-all cursor-pointer",
                               player ? "bg-sportiq-green/80" : "bg-white/20 border-2 border-dashed border-white/40",
@@ -357,13 +536,13 @@ const SquadBuilder = () => {
                       {/* Cricket-specific positions arranged in a circle and center */}
                       {currentFormation.positions.map((position) => {
                         const player = getPlayerForPosition(position.id);
-                        const isBowler = position.name.includes('Bowler');
-                        const isBatsman = position.name.includes('Batsman');
-                        const isWicketkeeper = position.name.includes('Wicketkeeper');
+                        const isBowler = position.id.includes('Bowler');
+                        const isBatsman = position.id.includes('Batsman');
+                        const isWicketkeeper = position.id.includes('Wicketkeeper');
                         
                         return (
                           <div 
-                            key={position.id}
+                            key={`${currentFormation.name}-${position.id}-${position.name}`}
                             className={cn(
                               "absolute w-14 h-14 -ml-7 -mt-7 rounded-full flex items-center justify-center transition-all cursor-pointer",
                               player ? 
@@ -414,33 +593,39 @@ const SquadBuilder = () => {
                   <h3 className="text-lg font-semibold mb-3">Your Squad ({selectedPlayers.length}/{activeSport === 'football' ? 11 : 11})</h3>
                   {selectedPlayers.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                      {selectedPlayers.map((player) => (
-                        <div 
-                          key={player.id} 
-                          className={cn(
-                            "relative bg-sportiq-lightgray/20 rounded-lg p-3 cursor-pointer hover:bg-sportiq-lightgray/30 transition-colors",
-                            activeSport === 'cricket' && player.position.includes('Bowler') ? "border-l-4 border-sportiq-blue" : 
-                            activeSport === 'cricket' && player.position.includes('Batsman') ? "border-l-4 border-sportiq-green" : 
-                            activeSport === 'cricket' && player.position.includes('Wicketkeeper') ? "border-l-4 border-sportiq-gold" : ""
-                          )}
-                          onClick={() => togglePlayerSelection(player)}
-                        >
-                          <div className="mb-2 flex justify-center">
-                            <div className="h-12 w-12 rounded-full bg-sportiq-purple/20 flex items-center justify-center">
-                              <User className="h-6 w-6 text-sportiq-purple" />
+                      {selectedPlayers.map((player) => {
+                        // Find player's position name
+                        const assignment = positionAssignments.find(a => a.playerId === player.id);
+                        const positionName = assignment ? assignment.positionName : player.position;
+                        
+                        return (
+                          <div 
+                            key={player.id} 
+                            className={cn(
+                              "relative bg-sportiq-lightgray/20 rounded-lg p-3 cursor-pointer hover:bg-sportiq-lightgray/30 transition-colors",
+                              activeSport === 'cricket' && player.position.includes('Bowler') ? "border-l-4 border-sportiq-blue" : 
+                              activeSport === 'cricket' && player.position.includes('Batsman') ? "border-l-4 border-sportiq-green" : 
+                              activeSport === 'cricket' && player.position.includes('Wicketkeeper') ? "border-l-4 border-sportiq-gold" : ""
+                            )}
+                            onClick={() => togglePlayerSelection(player)}
+                          >
+                            <div className="mb-2 flex justify-center">
+                              <div className="h-12 w-12 rounded-full bg-sportiq-purple/20 flex items-center justify-center">
+                                <User className="h-6 w-6 text-sportiq-purple" />
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <p className="font-medium truncate">{player.name}</p>
+                              <div className="flex items-center justify-center gap-1 text-xs text-white/70">
+                                <Shield className="h-3 w-3" />
+                                <span>{player.team}</span>
+                              </div>
+                              <p className="text-sportiq-green mt-1">£{player.price}m</p>
+                              <p className="text-xs text-white/70 mt-1">{positionName}</p>
                             </div>
                           </div>
-                          <div className="text-center">
-                            <p className="font-medium truncate">{player.name}</p>
-                            <div className="flex items-center justify-center gap-1 text-xs text-white/70">
-                              <Shield className="h-3 w-3" />
-                              <span>{player.team}</span>
-                            </div>
-                            <p className="text-sportiq-green mt-1">£{player.price}m</p>
-                            <p className="text-xs text-white/70 mt-1">{player.position}</p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {Array.from({ length: Math.max(0, (activeSport === 'football' ? 11 : 11) - selectedPlayers.length) }).map((_, index) => (
                         <div key={`empty-${index}`} className="relative bg-sportiq-lightgray/10 rounded-lg p-3 border border-dashed border-sportiq-lightgray/30 flex flex-col items-center justify-center h-28">
                           <PlusCircle className="h-8 w-8 text-sportiq-lightgray/50 mb-2" />
@@ -521,7 +706,7 @@ const SquadBuilder = () => {
                                   <td key={player.id} className="py-2 text-center">{player.form}</td>
                                 ))}
                               </tr>
-                              {activeSport === 'football' && (
+                              {activeSport === 'football' && playersToCompare.every(p => p.sport === 'football') && (
                                 <>
                                   <tr className="border-b border-white/10">
                                     <td className="py-2 pl-2">Goals</td>
@@ -537,7 +722,7 @@ const SquadBuilder = () => {
                                   </tr>
                                 </>
                               )}
-                              {activeSport === 'cricket' && (
+                              {activeSport === 'cricket' && playersToCompare.every(p => p.sport === 'cricket') && (
                                 <>
                                   <tr className="border-b border-white/10">
                                     <td className="py-2 pl-2">Runs</td>
@@ -582,7 +767,15 @@ const SquadBuilder = () => {
                   
                   {selectedPosition && (
                     <div className="mb-4 p-3 bg-sportiq-green/10 rounded-lg text-sm">
-                      <p>Click on a player below to assign them to the <strong>{selectedPosition}</strong> position. <Button variant="link" className="text-sportiq-red p-0 h-auto" onClick={() => setSelectedPosition(null)}>Cancel</Button></p>
+                      {filteredPlayers.length > 0 ? (
+                        <p>Click on a player below to assign them to the <strong>{
+                          currentFormation.positions.find(p => p.id === selectedPosition)?.name || selectedPosition
+                        }</strong> position. <Button variant="link" className="text-sportiq-red p-0 h-auto" onClick={() => setSelectedPosition(null)}>Cancel</Button></p>
+                      ) : (
+                        <p>No suitable players found for <strong>{
+                          currentFormation.positions.find(p => p.id === selectedPosition)?.name || selectedPosition
+                        }</strong>. Try adjusting your search or <Button variant="link" className="text-sportiq-red p-0 h-auto" onClick={() => setSelectedPosition(null)}>Cancel</Button></p>
+                      )}
                     </div>
                   )}
                   
@@ -641,7 +834,11 @@ const SquadBuilder = () => {
                   
                   {recommendedPlayers && recommendedPlayers.length > 0 ? (
                     <div className="space-y-3">
-                      <p className="text-sm text-white/70">Based on performance analytics, these players offer the best value:</p>
+                      <p className="text-sm text-white/70">
+                        Based on performance analytics, these players are recommended for the {
+                          selectedPosition ? currentFormation.positions.find(p => p.id === selectedPosition)?.name || selectedPosition : 'selected'
+                        } position:
+                      </p>
                       {recommendedPlayers.map(player => (
                         <div 
                           key={player.id}
@@ -684,9 +881,13 @@ const SquadBuilder = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-white/70 text-center py-6">
-                      No recommendations available at this time.
-                    </p>
+                    <div className="text-sm text-white/70 text-center py-6">
+                      {selectedPosition ? (
+                        <p>Select a position on the formation to get player recommendations</p>
+                      ) : (
+                        <p>Click on a position in the formation to get position-specific recommendations</p>
+                      )}
+                    </div>
                   )}
                 </GlassCard>
                 
@@ -697,28 +898,28 @@ const SquadBuilder = () => {
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-white/70">{activeSport === 'football' ? 'Attack' : 'Batting'}</span>
-                        <span>Good</span>
+                        <span>{teamBalance.attack > 75 ? 'Excellent' : teamBalance.attack > 50 ? 'Good' : teamBalance.attack > 25 ? 'Average' : 'Poor'}</span>
                       </div>
                       <div className="h-2 bg-sportiq-lightgray/20 rounded-full">
-                        <div className="h-full bg-sportiq-green rounded-full" style={{ width: '75%' }}></div>
+                        <div className="h-full bg-sportiq-green rounded-full" style={{ width: `${teamBalance.attack}%` }}></div>
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-white/70">{activeSport === 'football' ? 'Midfield' : 'All-rounders'}</span>
-                        <span>Excellent</span>
+                        <span>{teamBalance.midfield > 75 ? 'Excellent' : teamBalance.midfield > 50 ? 'Good' : teamBalance.midfield > 25 ? 'Average' : 'Poor'}</span>
                       </div>
                       <div className="h-2 bg-sportiq-lightgray/20 rounded-full">
-                        <div className="h-full bg-sportiq-blue rounded-full" style={{ width: '90%' }}></div>
+                        <div className="h-full bg-sportiq-blue rounded-full" style={{ width: `${teamBalance.midfield}%` }}></div>
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-white/70">{activeSport === 'football' ? 'Defense' : 'Bowling'}</span>
-                        <span>Average</span>
+                        <span>{teamBalance.defense > 75 ? 'Excellent' : teamBalance.defense > 50 ? 'Good' : teamBalance.defense > 25 ? 'Average' : 'Poor'}</span>
                       </div>
                       <div className="h-2 bg-sportiq-lightgray/20 rounded-full">
-                        <div className="h-full bg-sportiq-gold rounded-full" style={{ width: '50%' }}></div>
+                        <div className="h-full bg-sportiq-gold rounded-full" style={{ width: `${teamBalance.defense}%` }}></div>
                       </div>
                     </div>
                   </div>
@@ -809,8 +1010,8 @@ const SquadBuilder = () => {
                           ).map(([position, count]) => (
                             <div key={position}>
                               <div className="flex justify-between text-xs mb-1">
-                                <span>{position}</span>
-                                <span>{count}</span>
+                                <span className="text-white">{position}</span>
+                                <span className="text-white">{count}</span>
                               </div>
                               <div className="h-1.5 bg-sportiq-lightgray/20 rounded-full">
                                 <div 
@@ -841,26 +1042,39 @@ const SquadBuilder = () => {
                 <GlassCard className="p-4">
                   <div className="flex items-center mb-3">
                     <TrendingUp className="h-5 w-5 text-sportiq-gold mr-2" />
-                    <h3 className="text-lg font-semibold">AI Recommendations</h3>
+                    <h3 className="text-lg font-semibold">Prediction Insights</h3>
                   </div>
                   
                   <div className="space-y-3">
-                    <div className="bg-sportiq-blue/10 p-3 rounded-lg border border-sportiq-blue/30">
-                      <p className="text-sm">Consider adding more {activeSport === 'football' ? 'forwards to strengthen your attack potential' : 'bowlers to balance your squad'}.</p>
-                    </div>
-                    <div className="bg-sportiq-gold/10 p-3 rounded-lg border border-sportiq-gold/30">
-                      <p className="text-sm">Your selection has {Math.floor(Math.random() * 5) + 1} players from upcoming difficult fixtures.</p>
-                    </div>
                     {activeSport === 'football' && (
-                      <div className="bg-sportiq-purple/10 p-3 rounded-lg border border-sportiq-purple/30">
-                        <p className="text-sm">Based on recent performances, consider adding De Bruyne for higher point potential.</p>
-                      </div>
+                      <>
+                        <div className="bg-sportiq-blue/10 p-3 rounded-lg border border-sportiq-blue/30">
+                          <p className="text-sm">Manchester City players have 82% higher chance of scoring in the next fixture, consider adding more City attackers.</p>
+                        </div>
+                        <div className="bg-sportiq-gold/10 p-3 rounded-lg border border-sportiq-gold/30">
+                          <p className="text-sm">Liverpool defenders are predicted to keep 3 clean sheets in the next 4 games.</p>
+                        </div>
+                        <div className="bg-sportiq-purple/10 p-3 rounded-lg border border-sportiq-purple/30">
+                          <p className="text-sm">Kevin De Bruyne is expected to create 35% more chances in the next game compared to his season average.</p>
+                        </div>
+                      </>
                     )}
                     {activeSport === 'cricket' && (
-                      <div className="bg-sportiq-purple/10 p-3 rounded-lg border border-sportiq-purple/30">
-                        <p className="text-sm">Babar Azam has been in exceptional form, making him a strong captain choice.</p>
-                      </div>
+                      <>
+                        <div className="bg-sportiq-blue/10 p-3 rounded-lg border border-sportiq-blue/30">
+                          <p className="text-sm">The pitch for the next Karachi Kings match favors spinners, consider adding more spin bowlers.</p>
+                        </div>
+                        <div className="bg-sportiq-gold/10 p-3 rounded-lg border border-sportiq-gold/30">
+                          <p className="text-sm">Babar Azam is predicted to score 15% more runs in the upcoming fixture based on historical data.</p>
+                        </div>
+                        <div className="bg-sportiq-purple/10 p-3 rounded-lg border border-sportiq-purple/30">
+                          <p className="text-sm">Mumbai Indians all-rounders have 75% higher chance of getting wickets in the next match.</p>
+                        </div>
+                      </>
                     )}
+                    <div className="bg-sportiq-green/10 p-3 rounded-lg border border-sportiq-green/30">
+                      <p className="text-sm">Our AI predicts your current squad has a 68% chance of outperforming the average in the next gameweek.</p>
+                    </div>
                   </div>
                 </GlassCard>
               </div>
