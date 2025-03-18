@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart3, PieChart, LineChart } from 'lucide-react';
-import { Bar, Line, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon } from 'lucide-react';
+import { Bar, Line, Pie, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, BarChart, LineChart, PieChart } from 'recharts';
 import { cn } from '@/lib/utils';
 import GlassCard from '@/components/ui/GlassCard';
 import Navbar from '@/components/layout/Navbar';
@@ -65,7 +65,7 @@ const Analytics = () => {
               
               <Link to="/performance" className="block">
                 <GlassCard className="p-4 flex flex-col items-center justify-center h-full hover:bg-sportiq-lightgray/10 transition-colors">
-                  <PieChart className="h-16 w-16 text-sportiq-purple mb-4" />
+                  <PieChartIcon className="h-16 w-16 text-sportiq-purple mb-4" />
                   <h2 className="text-lg font-semibold">Player Analysis</h2>
                   <p className="text-white/70 mt-2 text-center">In-depth player performance and contribution statistics</p>
                   <Button className="mt-4 bg-sportiq-purple hover:bg-sportiq-purple/90">View Players</Button>
@@ -74,7 +74,7 @@ const Analytics = () => {
               
               <Link to="/predictions" className="block">
                 <GlassCard className="p-4 flex flex-col items-center justify-center h-full hover:bg-sportiq-lightgray/10 transition-colors">
-                  <LineChart className="h-16 w-16 text-sportiq-green mb-4" />
+                  <LineChartIcon className="h-16 w-16 text-sportiq-green mb-4" />
                   <h2 className="text-lg font-semibold">Trend Analysis</h2>
                   <p className="text-white/70 mt-2 text-center">Long-term performance trends and pattern recognition</p>
                   <Button className="mt-4 bg-sportiq-green hover:bg-sportiq-green/90">View Trends</Button>
