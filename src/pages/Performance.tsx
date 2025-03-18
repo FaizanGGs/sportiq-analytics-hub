@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -11,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { squadPlayers, performanceStats } from '@/data/sampleData';
-import PlayerComparison3D from '@/components/animations/PlayerComparison3D';
 
 type PlayerType = {
   id: number;
@@ -37,8 +37,8 @@ const Performance = () => {
   const [selectedStatistic, setSelectedStatistic] = useState('points');
   const [timeRange, setTimeRange] = useState('season');
   const [comparisonPlayers, setComparisonPlayers] = useState<PlayerType[]>([]);
-  const [show3DAnimation, setShow3DAnimation] = useState(false);
 
+  // Define colors for charts
   const chartColors = {
     primary: '#3b82f6', // blue
     secondary: '#10b981', // green
@@ -48,43 +48,56 @@ const Performance = () => {
     text: '#ffffff'
   };
 
+  // Pie chart custom colors
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
+  // Filter players based on search query and selected sport
   const filteredPlayers = squadPlayers.filter(player => 
     player.sport === selectedSport && 
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Generate player performance data for charts
   const generatePlayerPerformanceData = (player: PlayerType | null) => {
     if (!player) return [];
     
+    // Generate last 10 matches data
     return Array.from({ length: 10 }, (_, i) => {
       const match = i + 1;
       let value = 0;
       
       if (selectedSport === 'football') {
         if (selectedStatistic === 'points') {
+          // Random points between 2-12 with some pattern
           value = 2 + Math.floor(Math.random() * 10);
+          // Add some pattern
           if (i % 3 === 0) value += 3;
           if (i % 5 === 0) value += 2;
         } else if (selectedStatistic === 'goals') {
+          // Goals for forwards: 0-3, midfielders: 0-2, defenders: 0-1
           const max = player.position === 'Forward' ? 3 : player.position === 'Midfielder' ? 2 : 1;
           value = Math.floor(Math.random() * (max + 1));
         } else if (selectedStatistic === 'assists') {
+          // Assists based on position
           const max = player.position === 'Midfielder' ? 2 : player.position === 'Forward' ? 1 : 1;
           value = Math.floor(Math.random() * (max + 1));
         } else if (selectedStatistic === 'cleanSheets' && (player.position === 'Defender' || player.position === 'Goalkeeper')) {
+          // Clean sheets: 0 or 1
           value = Math.random() > 0.6 ? 1 : 0;
         }
       } else if (selectedSport === 'cricket') {
         if (selectedStatistic === 'points') {
+          // Random points between 5-25
           value = 5 + Math.floor(Math.random() * 20);
         } else if (selectedStatistic === 'runs' && (player.position === 'Batsman' || player.position === 'All-rounder')) {
+          // Runs for batsmen: 0-100, all-rounders: 0-50
           const max = player.position === 'Batsman' ? 100 : 50;
           value = Math.floor(Math.random() * max);
         } else if (selectedStatistic === 'wickets' && (player.position === 'Bowler' || player.position === 'All-rounder')) {
+          // Wickets: 0-5
           value = Math.floor(Math.random() * 6);
         } else if (selectedStatistic === 'dismissals' && player.position === 'Wicketkeeper') {
+          // Wicketkeeper dismissals: 0-4
           value = Math.floor(Math.random() * 5);
         }
       }
@@ -96,6 +109,7 @@ const Performance = () => {
     });
   };
 
+  // Generate data for the scatter plot
   const generateScatterData = (player: PlayerType | null) => {
     if (!player) return [];
     
@@ -118,6 +132,7 @@ const Performance = () => {
     });
   };
 
+  // Generate data for player comparison
   const generateComparisonData = () => {
     const stats = selectedSport === 'football' 
       ? ['points', 'goals', 'assists', 'minutes'] 
@@ -140,6 +155,7 @@ const Performance = () => {
     });
   };
 
+  // Generate pie chart data
   const generatePieData = (player: PlayerType | null) => {
     if (!player) return [];
     
@@ -160,6 +176,7 @@ const Performance = () => {
     }
   };
 
+  // Toggle player selection for comparison
   const togglePlayerComparison = (player: PlayerType) => {
     if (comparisonPlayers.some(p => p.id === player.id)) {
       setComparisonPlayers(comparisonPlayers.filter(p => p.id !== player.id));
@@ -170,6 +187,7 @@ const Performance = () => {
     }
   };
 
+  // Get relevant statistics based on sport and position
   const getRelevantStats = (player: PlayerType | null) => {
     if (!player) return [];
     
@@ -196,19 +214,11 @@ const Performance = () => {
     }
   };
 
-  useEffect(() => {
-    if (comparisonPlayers.length > 0 && view === 'comparison') {
-      setShow3DAnimation(true);
-    } else {
-      setShow3DAnimation(false);
-    }
-  }, [comparisonPlayers, view]);
-
   return (
     <div className="h-full flex bg-sportiq-black text-white">
       <Sidebar isOpen={isSidebarOpen} />
       
-      <div className="flex-1 flex flex-col min-h-screen sm:pl-20">
+      <div className="flex-1 flex flex-col min-h-screen">
         <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
         
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 animate-fade-in">
@@ -250,6 +260,7 @@ const Performance = () => {
             </div>
             
             <div className="flex flex-col md:flex-row gap-6">
+              {/* Player Selection */}
               <div className="w-full md:w-1/3 space-y-4">
                 <GlassCard className="p-4">
                   <div className="flex items-center justify-between mb-4">
@@ -435,6 +446,7 @@ const Performance = () => {
                 )}
               </div>
               
+              {/* Performance Visualizations */}
               <div className="w-full md:w-2/3 space-y-4">
                 {view === 'performance' ? (
                   <>
@@ -680,14 +692,7 @@ const Performance = () => {
                       <>
                         <GlassCard className="p-4">
                           <h3 className="text-lg font-bold mb-4">Player Comparison: {comparisonPlayers.map(p => p.name).join(' vs ')}</h3>
-                          
-                          <PlayerComparison3D 
-                            players={comparisonPlayers} 
-                            sport={selectedSport} 
-                            visible={show3DAnimation}
-                          />
-                          
-                          <div className="h-72 mt-4">
+                          <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
                               <BarChart
                                 data={generateComparisonData()}
