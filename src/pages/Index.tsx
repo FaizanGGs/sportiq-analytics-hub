@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { BarChart3, TrendingUp, Users, Activity, ChevronRight } from 'lucide-react';
 import { Line } from 'recharts';
 import { cn } from '@/lib/utils';
@@ -106,10 +107,10 @@ const Index = () => {
               <GlassCard className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-medium">Performance Trends</h2>
-                  <button className="text-sm text-sportiq-blue hover:text-sportiq-blue/80 flex items-center gap-1">
+                  <Link to="/performance" className="text-sm text-sportiq-blue hover:text-sportiq-blue/80 flex items-center gap-1">
                     More Details
                     <ChevronRight size={16} />
-                  </button>
+                  </Link>
                 </div>
                 {/* Add a simple line chart here */}
               </GlassCard>
