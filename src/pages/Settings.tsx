@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Save, Bell, Shield, User, Moon, SunMedium, Globe, Lock, ChevronRight, EyeOff, Eye, Languages, Sliders, RefreshCw, HelpCircle, FileText, LogOut } from 'lucide-react';
+import { Save, Bell, Shield, User, Moon, SunMedium, Globe, Lock, ChevronRight, EyeOff, Eye, Languages, Sliders, RefreshCw, HelpCircle, FileText, LogOut, BarChart4, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -223,7 +222,7 @@ const Settings = () => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between py-2">
                       <div className="flex items-center gap-2">
-                        <BarChart className="h-5 w-5 text-sportiq-purple" />
+                        <BarChart4 className="h-5 w-5 text-sportiq-purple" />
                         <span>Show Advanced Statistics</span>
                       </div>
                       <Switch checked={true} />
@@ -273,23 +272,23 @@ const Settings = () => {
                       
                       <div className="ml-2 space-y-1">
                         <div className="flex items-center gap-2">
-                          <Switch checked={true} size="sm" />
+                          <Switch checked={true} />
                           <span className="text-sm">Match Predictions</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Switch checked={true} size="sm" />
+                          <Switch checked={true} />
                           <span className="text-sm">Player Performance Updates</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Switch checked={true} size="sm" />
+                          <Switch checked={true} />
                           <span className="text-sm">Team News</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Switch checked={false} size="sm" />
+                          <Switch checked={false} />
                           <span className="text-sm">Fantasy Point Updates</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Switch checked={false} size="sm" />
+                          <Switch checked={false} />
                           <span className="text-sm">Marketing & Promotions</span>
                         </div>
                       </div>
