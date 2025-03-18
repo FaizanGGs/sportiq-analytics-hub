@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -727,3 +728,95 @@ const Performance = () => {
                         </GlassCard>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <GlassCard className="p-4">
+                            <h3 className="text-lg font-bold mb-4">Key Stats Comparison</h3>
+                            <div className="space-y-4">
+                              {comparisonPlayers.map((player, index) => (
+                                <div key={player.id} className="flex items-center gap-3">
+                                  <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${COLORS[index % COLORS.length]}30` }}>
+                                    <User className="h-5 w-5" style={{ color: COLORS[index % COLORS.length] }} />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex justify-between items-center">
+                                      <p className="font-medium">{player.name}</p>
+                                      <p className="text-sm text-white/70">{player.points} pts</p>
+                                    </div>
+                                    <div className="w-full bg-sportiq-lightgray/20 h-2 rounded-full mt-1 overflow-hidden">
+                                      <div 
+                                        className="h-full rounded-full" 
+                                        style={{ 
+                                          backgroundColor: COLORS[index % COLORS.length],
+                                          width: `${(player.points / Math.max(...comparisonPlayers.map(p => p.points))) * 100}%`
+                                        }}
+                                      ></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </GlassCard>
+                          
+                          <GlassCard className="p-4">
+                            <h3 className="text-lg font-bold mb-4">Form Comparison</h3>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart
+                                  margin={{
+                                    top: 5,
+                                    right: 30,
+                                    left: 20,
+                                    bottom: 5,
+                                  }}
+                                >
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#555" />
+                                  <XAxis dataKey="match" stroke={chartColors.text} />
+                                  <YAxis stroke={chartColors.text} />
+                                  <Tooltip 
+                                    contentStyle={{ 
+                                      backgroundColor: chartColors.background, 
+                                      color: chartColors.text,
+                                      border: `1px solid ${chartColors.primary}`
+                                    }}
+                                  />
+                                  <Legend wrapperStyle={{ color: chartColors.text }} />
+                                  {comparisonPlayers.map((player, index) => (
+                                    <Line
+                                      key={player.id}
+                                      data={generatePlayerPerformanceData(player)}
+                                      type="monotone"
+                                      dataKey="value"
+                                      name={player.name}
+                                      stroke={COLORS[index % COLORS.length]}
+                                      strokeWidth={2}
+                                      activeDot={{ r: 8 }}
+                                    />
+                                  ))}
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </GlassCard>
+                        </div>
+                      </>
+                    ) : (
+                      <GlassCard className="p-4 flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <User className="h-12 w-12 text-sportiq-gold/50 mx-auto mb-4" />
+                          <h3 className="text-xl font-bold mb-2">Select Players to Compare</h3>
+                          <p className="text-white/70 max-w-md">
+                            Choose up to 3 players from the list to compare their performance statistics.
+                          </p>
+                        </div>
+                      </GlassCard>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Performance;
