@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { Shield, User, PlusCircle, AlertTriangle, DollarSign, BarChart2, RefreshCcw, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, User, PlusCircle, AlertTriangle, DollarSign, BarChart2, RefreshCcw, Search, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GlassCard from '@/components/ui/GlassCard';
 import Navbar from '@/components/layout/Navbar';
@@ -8,6 +7,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { squadPlayers, footballFormations, cricketFormations } from '@/data/sampleData';
+import { toast } from '@/components/ui/use-toast';
 
 type PlayerCard = {
   id: number;
@@ -55,6 +55,11 @@ const SquadBuilder = () => {
   const [playersToCompare, setPlayersToCompare] = useState<PlayerCard[]>([]);
   const [customBudget, setCustomBudget] = useState(budget.toString());
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  
+  // Update current formation when active sport changes
+  useEffect(() => {
+    setCurrentFormation(activeSport === 'football' ? footballFormations[0] : cricketFormations[0]);
+  }, [activeSport]);
 
   // Toggle player selection
   const togglePlayerSelection = (player: PlayerCard) => {
@@ -62,8 +67,26 @@ const SquadBuilder = () => {
     if (selectedPosition && !player.selected) {
       // Check if within budget
       if (budget < player.price) {
-        console.log('Not enough budget');
+        toast({
+          title: "Not enough budget",
+          description: `You need £${player.price}m but only have £${budget.toFixed(1)}m available.`,
+          variant: "destructive"
+        });
         return;
+      }
+      
+      // Check if position already filled
+      const positionAlreadyFilled = selectedPlayers.some(p => p.position === selectedPosition);
+      if (positionAlreadyFilled) {
+        // Remove the player in that position first
+        const playerToRemove = selectedPlayers.find(p => p.position === selectedPosition);
+        if (playerToRemove) {
+          setSelectedPlayers(selectedPlayers.filter(p => p.id !== playerToRemove.id));
+          setAvailablePlayers(availablePlayers.map(p => 
+            p.id === playerToRemove.id ? { ...p, selected: false } : p
+          ));
+          setBudget(prevBudget => prevBudget + playerToRemove.price);
+        }
       }
       
       // Add to selection with the selected position
@@ -74,6 +97,11 @@ const SquadBuilder = () => {
       ));
       setBudget(prevBudget => prevBudget - player.price);
       setSelectedPosition(null); // Clear the position after selection
+      
+      toast({
+        title: "Player Added",
+        description: `${player.name} has been added to ${selectedPosition}`,
+      });
       return;
     }
     
@@ -84,12 +112,21 @@ const SquadBuilder = () => {
         p.id === player.id ? { ...p, selected: false } : p
       ));
       setBudget(prevBudget => prevBudget + player.price);
+      
+      toast({
+        title: "Player Removed",
+        description: `${player.name} has been removed from your squad`,
+      });
     }
   };
 
   // Select a position to add a player to
   const selectPosition = (positionId: string) => {
     setSelectedPosition(positionId);
+    toast({
+      title: "Position Selected",
+      description: `Select a player for the ${positionId} position`,
+    });
   };
 
   // Toggle compare mode and manage players to compare
@@ -129,6 +166,10 @@ const SquadBuilder = () => {
     const newBudget = parseFloat(customBudget);
     if (!isNaN(newBudget) && newBudget > 0) {
       setBudget(newBudget);
+      toast({
+        title: "Budget Updated",
+        description: `Your budget is now £${newBudget.toFixed(1)}m`,
+      });
     }
   };
 
@@ -146,6 +187,27 @@ const SquadBuilder = () => {
       player.position === positionId
     );
   };
+
+  // Get AI recommendation for player selection
+  const getAIRecommendation = () => {
+    // This would be more sophisticated in a real app
+    const availablePlayersForActiveSport = availablePlayers.filter(p => 
+      p.sport === activeSport && !p.selected
+    );
+    
+    if (availablePlayersForActiveSport.length === 0) return null;
+    
+    // Sort by points per price (value)
+    const sortedByValue = [...availablePlayersForActiveSport].sort((a, b) => 
+      (b.points / b.price) - (a.points / a.price)
+    );
+    
+    // Get top recommendations
+    return sortedByValue.slice(0, 3);
+  };
+
+  // Recommended players
+  const recommendedPlayers = getAIRecommendation();
 
   return (
     <div className="h-full flex bg-sportiq-black text-white">
@@ -569,6 +631,66 @@ const SquadBuilder = () => {
               {/* Squad Insights */}
               <div className="w-full md:w-1/3 space-y-4">
                 <h2 className="text-xl font-bold">Squad Insights</h2>
+                
+                {/* AI Recommended Players */}
+                <GlassCard className="p-4">
+                  <div className="flex items-center mb-3">
+                    <TrendingUp className="h-5 w-5 text-sportiq-gold mr-2" />
+                    <h3 className="text-lg font-semibold">AI Recommendations</h3>
+                  </div>
+                  
+                  {recommendedPlayers && recommendedPlayers.length > 0 ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-white/70">Based on performance analytics, these players offer the best value:</p>
+                      {recommendedPlayers.map(player => (
+                        <div 
+                          key={player.id}
+                          className="bg-sportiq-gold/10 p-3 rounded-lg cursor-pointer hover:bg-sportiq-gold/20 transition-colors"
+                          onClick={() => {
+                            if (selectedPosition) {
+                              togglePlayerSelection(player);
+                            } else {
+                              toast({
+                                title: "Select a position first",
+                                description: "Click on a position in the formation display to place this player",
+                              });
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="h-10 w-10 rounded-full bg-sportiq-gold/20 flex items-center justify-center">
+                              <User className="h-5 w-5 text-sportiq-gold" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">{player.name}</p>
+                              <div className="flex items-center gap-2 text-xs text-white/70">
+                                <span>{player.team}</span>
+                                <span>•</span>
+                                <span>{player.position}</span>
+                                <span>•</span>
+                                <span className="text-sportiq-green">£{player.price}m</span>
+                              </div>
+                              <div className="flex items-center gap-1 mt-1">
+                                <span className="text-xs bg-sportiq-purple/20 text-sportiq-purple px-1.5 py-0.5 rounded">
+                                  {player.points} pts
+                                </span>
+                                <span className="text-xs bg-sportiq-green/20 text-sportiq-green px-1.5 py-0.5 rounded">
+                                  Form: {player.form}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/70 text-center py-6">
+                      No recommendations available at this time.
+                    </p>
+                  )}
+                </GlassCard>
+                
+                {/* Team Balance */}
                 <GlassCard className="p-4">
                   <h3 className="text-lg font-semibold mb-3">Team Balance</h3>
                   <div className="space-y-3">
@@ -602,6 +724,7 @@ const SquadBuilder = () => {
                   </div>
                 </GlassCard>
 
+                {/* Performance Metrics */}
                 <GlassCard className="p-4">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-lg font-semibold">Performance Metrics</h3>
@@ -714,8 +837,13 @@ const SquadBuilder = () => {
                   </div>
                 </GlassCard>
 
+                {/* AI Recommendations */}
                 <GlassCard className="p-4">
-                  <h3 className="text-lg font-semibold mb-3">AI Recommendations</h3>
+                  <div className="flex items-center mb-3">
+                    <TrendingUp className="h-5 w-5 text-sportiq-gold mr-2" />
+                    <h3 className="text-lg font-semibold">AI Recommendations</h3>
+                  </div>
+                  
                   <div className="space-y-3">
                     <div className="bg-sportiq-blue/10 p-3 rounded-lg border border-sportiq-blue/30">
                       <p className="text-sm">Consider adding more {activeSport === 'football' ? 'forwards to strengthen your attack potential' : 'bowlers to balance your squad'}.</p>
