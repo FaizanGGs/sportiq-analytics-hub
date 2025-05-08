@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -718,3 +719,291 @@ const Performance = () => {
                                       backgroundColor: chartColors.background, 
                                       color: chartColors.text,
                                       border: `1px solid ${chartColors.secondary}`
+                                    }}
+                                  />
+                                  <Legend wrapperStyle={{ color: chartColors.text }} />
+                                  <Bar dataKey="value" name={selectedStatistic.charAt(0).toUpperCase() + selectedStatistic.slice(1)} fill={chartColors.secondary} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </GlassCard>
+                          
+                          <GlassCard className="p-4">
+                            <h3 className="text-lg font-bold mb-4">Performance Breakdown</h3>
+                            <div className="h-64">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={generatePieData(selectedPlayer)}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="value"
+                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                  >
+                                    {generatePieData(selectedPlayer).map((entry, index) => (
+                                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip 
+                                    contentStyle={{ 
+                                      backgroundColor: chartColors.background, 
+                                      color: chartColors.text,
+                                      border: `1px solid ${chartColors.accent}`
+                                    }}
+                                  />
+                                  <Legend formatter={(value) => <span style={{ color: chartColors.text }}>{value}</span>} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </GlassCard>
+                        </div>
+                      </>
+                    ) : (
+                      <GlassCard className="p-6 text-center">
+                        <User className="h-12 w-12 mx-auto text-white/30 mb-3" />
+                        <h3 className="text-xl font-medium text-white/70">Select a player to view stats</h3>
+                        <p className="text-white/50 mt-2">Player statistics and performance trends will appear here</p>
+                      </GlassCard>
+                    )}
+                  </>
+                ) : view === 'comparison' ? (
+                  <>
+                    {comparisonPlayers.length > 0 ? (
+                      <>
+                        <GlassCard className="p-4">
+                          <h3 className="text-lg font-bold mb-4">Player Comparison</h3>
+                          
+                          <div className="mb-6 overflow-x-auto">
+                            <Table>
+                              <TableHeader className="bg-sportiq-lightgray/10">
+                                <TableRow>
+                                  <TableHead>Stats</TableHead>
+                                  {comparisonPlayers.map(player => (
+                                    <TableHead key={player.id}>
+                                      <div className="flex flex-col items-center">
+                                        <div className="h-8 w-8 rounded-full bg-sportiq-lightgray/30 flex items-center justify-center mb-1">
+                                          <User className="h-4 w-4 text-white" />
+                                        </div>
+                                        <span>{player.name}</span>
+                                        <span className="text-xs text-white/50">{player.team}</span>
+                                      </div>
+                                    </TableHead>
+                                  ))}
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="font-medium">Points</TableCell>
+                                  {comparisonPlayers.map(player => (
+                                    <TableCell key={player.id} className="text-center font-bold text-sportiq-blue">
+                                      {player.points}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                                {selectedSport === 'football' && (
+                                  <>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Goals</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.goals || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Assists</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.assists || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Minutes</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.minutesPlayed || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Price</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center flex justify-center">
+                                          <div className="flex items-center">
+                                            <DollarSign className="h-4 w-4 mr-1 text-sportiq-gold" />
+                                            <span>{player.price.toFixed(1)}</span>
+                                          </div>
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Form</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          <span className="bg-sportiq-green/20 text-sportiq-green px-2 py-0.5 rounded">
+                                            {player.form}
+                                          </span>
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                  </>
+                                )}
+                                {selectedSport === 'cricket' && (
+                                  <>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Runs</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.runs || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Wickets</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.wickets || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Strike Rate</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.strikeRate || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                  </>
+                                )}
+                              </TableBody>
+                            </Table>
+                          </div>
+                          
+                          <div className="text-center text-white/50 text-sm">
+                            {comparisonPlayers.length < 3 && `You can add ${3 - comparisonPlayers.length} more player${3 - comparisonPlayers.length > 1 ? 's' : ''} to compare`}
+                          </div>
+                        </GlassCard>
+                      </>
+                    ) : (
+                      <GlassCard className="p-6 text-center">
+                        <User className="h-12 w-12 mx-auto text-white/30 mb-3" />
+                        <h3 className="text-xl font-medium text-white/70">Select players to compare</h3>
+                        <p className="text-white/50 mt-2">You can compare up to 3 players side by side</p>
+                      </GlassCard>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {showAutoTeam && autoTeam.length > 0 ? (
+                      <GlassCard className="p-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-bold">{formations[teamType].name} Auto Team</h3>
+                          <Button 
+                            variant="outline" 
+                            className="h-8 text-xs bg-sportiq-lightgray/10"
+                            onClick={() => setShowAutoTeam(false)}
+                          >
+                            Generate New
+                          </Button>
+                        </div>
+                        
+                        <div className="mb-4 bg-sportiq-lightgray/10 p-3 rounded-lg">
+                          <h4 className="font-medium mb-2">Team Formation</h4>
+                          <div className="flex justify-between text-sm">
+                            <span>GK: {autoTeam.filter(p => p.position === 'Goalkeeper').length}</span>
+                            <span>DEF: {autoTeam.filter(p => p.position === 'Defender').length}</span>
+                            <span>MID: {autoTeam.filter(p => p.position === 'Midfielder').length}</span>
+                            <span>FWD: {autoTeam.filter(p => p.position === 'Forward').length}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader className="bg-sportiq-lightgray/10">
+                              <TableRow>
+                                <TableHead>Player</TableHead>
+                                <TableHead>Position</TableHead>
+                                <TableHead>Team</TableHead>
+                                <TableHead>Points</TableHead>
+                                <TableHead>Price</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {autoTeam.map(player => (
+                                <TableRow key={player.id}>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-8 w-8 rounded-full bg-sportiq-lightgray/30 flex items-center justify-center">
+                                        <User className="h-4 w-4 text-white" />
+                                      </div>
+                                      <span className="font-medium">{player.name}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>{player.position}</TableCell>
+                                  <TableCell>{player.team}</TableCell>
+                                  <TableCell>
+                                    <span className="bg-sportiq-blue/20 text-sportiq-blue px-2 py-0.5 rounded">
+                                      {player.points}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center">
+                                      <DollarSign className="h-4 w-4 mr-1 text-sportiq-gold" />
+                                      <span>{player.price.toFixed(1)}</span>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        <div className="mt-4 bg-sportiq-lightgray/10 p-3 rounded-lg">
+                          <h4 className="font-medium mb-2">Team Summary</h4>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="text-sm text-white/70">Total Points</div>
+                              <div className="text-xl font-bold text-sportiq-blue">
+                                {autoTeam.reduce((sum, player) => sum + player.points, 0)}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-white/70">Avg. Points per Player</div>
+                              <div className="text-xl font-bold text-sportiq-purple">
+                                {(autoTeam.reduce((sum, player) => sum + player.points, 0) / autoTeam.length).toFixed(1)}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-white/70">Total Cost</div>
+                              <div className="text-xl font-bold flex items-center text-sportiq-gold">
+                                <DollarSign className="h-4 w-4 mr-1" />
+                                {autoTeam.reduce((sum, player) => sum + player.price, 0).toFixed(1)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    ) : (
+                      <GlassCard className="p-6 text-center">
+                        <TrendingUp className="h-12 w-12 mx-auto text-white/30 mb-3" />
+                        <h3 className="text-xl font-medium text-white/70">Generate your auto team</h3>
+                        <p className="text-white/50 mt-2">Select your preferred formation type and generate your optimal team</p>
+                      </GlassCard>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Performance;
