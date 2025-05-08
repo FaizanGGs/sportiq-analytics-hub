@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import { User, Search, FilterX, Filter, Calendar, Download, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { User, Search, FilterX, Filter, Calendar, Download, TrendingUp, ArrowUpRight, ArrowDownRight, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import GlassCard from '@/components/ui/GlassCard';
 import Navbar from '@/components/layout/Navbar';
