@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart, LineChart, ScatterChart, PieChart, AreaChart } from 'recharts';
 import { Bar, Line, Scatter, Pie, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -695,4 +696,42 @@ const Performance = () => {
                                     <TableRow>
                                       <TableCell className="font-medium">Strike Rate</TableCell>
                                       {comparisonPlayers.map(player => (
-                                        <
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.strikeRate || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                    <TableRow>
+                                      <TableCell className="font-medium">Economy</TableCell>
+                                      {comparisonPlayers.map(player => (
+                                        <TableCell key={player.id} className="text-center">
+                                          {player.stats?.economy || 0}
+                                        </TableCell>
+                                      ))}
+                                    </TableRow>
+                                  </>
+                                )}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </GlassCard>
+                      </>
+                    ) : (
+                      <GlassCard className="p-6 text-center">
+                        <User className="h-12 w-12 mx-auto text-white/30 mb-3" />
+                        <h3 className="text-xl font-medium text-white/70">Select players to compare</h3>
+                        <p className="text-white/50 mt-2">Select up to 3 players to compare their statistics</p>
+                      </GlassCard>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Performance;
