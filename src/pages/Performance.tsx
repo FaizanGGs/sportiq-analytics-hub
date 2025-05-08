@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { squadPlayers, performanceStats } from '@/data/sampleData';
+import { premierLeaguePlayers } from '@/data/additionalPlayers';
+import { toast } from '@/components/ui/use-toast';
 
 type PlayerType = {
   id: number;
@@ -28,15 +30,64 @@ type PlayerType = {
   };
 };
 
+// Team formation and position requirements
+type FormationTemplate = {
+  name: string;
+  positions: {
+    Goalkeeper?: number;
+    Defender: number;
+    Midfielder: number;
+    Forward: number;
+  };
+};
+
+// Define different formations
+const formations: Record<string, FormationTemplate> = {
+  balanced: {
+    name: "4-4-2 (Balanced)",
+    positions: {
+      Goalkeeper: 1,
+      Defender: 4,
+      Midfielder: 4,
+      Forward: 2
+    }
+  },
+  defensive: {
+    name: "5-3-2 (Defensive)",
+    positions: {
+      Goalkeeper: 1,
+      Defender: 5,
+      Midfielder: 3,
+      Forward: 2
+    }
+  },
+  attacking: {
+    name: "4-3-3 (Attacking)",
+    positions: {
+      Goalkeeper: 1,
+      Defender: 4,
+      Midfielder: 3,
+      Forward: 3
+    }
+  }
+};
+
+// Combine player data
+const allFootballPlayers = [...squadPlayers.filter(player => player.sport === 'football'), ...premierLeaguePlayers];
+const allCricketPlayers = squadPlayers.filter(player => player.sport === 'cricket');
+
 const Performance = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerType | null>(null);
   const [selectedSport, setSelectedSport] = useState<'football' | 'cricket'>('football');
   const [searchQuery, setSearchQuery] = useState('');
-  const [view, setView] = useState<'performance' | 'comparison'>('performance');
+  const [view, setView] = useState<'performance' | 'comparison' | 'auto-team'>('performance');
   const [selectedStatistic, setSelectedStatistic] = useState('points');
   const [timeRange, setTimeRange] = useState('season');
   const [comparisonPlayers, setComparisonPlayers] = useState<PlayerType[]>([]);
+  const [teamType, setTeamType] = useState<'balanced' | 'defensive' | 'attacking'>('balanced');
+  const [autoTeam, setAutoTeam] = useState<PlayerType[]>([]);
+  const [showAutoTeam, setShowAutoTeam] = useState(false);
 
   // Define colors for charts
   const chartColors = {
@@ -52,10 +103,9 @@ const Performance = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
   // Filter players based on search query and selected sport
-  const filteredPlayers = squadPlayers.filter(player => 
-    player.sport === selectedSport && 
-    player.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPlayers = selectedSport === 'football' 
+    ? allFootballPlayers.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allCricketPlayers.filter(player => player.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Generate player performance data for charts
   const generatePlayerPerformanceData = (player: PlayerType | null) => {
@@ -214,6 +264,57 @@ const Performance = () => {
     }
   };
 
+  // Auto-team selection logic
+  const generateAutoTeam = () => {
+    if (selectedSport !== 'football') {
+      toast({
+        title: "Auto-team currently only available for football",
+        description: "Cricket auto-team selection will be coming soon!",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const formation = formations[teamType];
+    const requiredPositions = formation.positions;
+    const newTeam: PlayerType[] = [];
+
+    // Get players for each position based on points
+    const sortedPlayers: Record<string, PlayerType[]> = {
+      Goalkeeper: [],
+      Defender: [],
+      Midfielder: [],
+      Forward: []
+    };
+
+    // Sort players by position and points
+    allFootballPlayers.forEach(player => {
+      if (sortedPlayers[player.position]) {
+        sortedPlayers[player.position].push(player);
+      }
+    });
+
+    // Sort each position group by points (highest first)
+    Object.keys(sortedPlayers).forEach(pos => {
+      sortedPlayers[pos].sort((a, b) => b.points - a.points);
+    });
+
+    // Build team according to formation
+    Object.keys(requiredPositions).forEach(position => {
+      const count = requiredPositions[position as keyof typeof requiredPositions];
+      const bestPlayers = sortedPlayers[position].slice(0, count);
+      newTeam.push(...bestPlayers);
+    });
+
+    setAutoTeam(newTeam);
+    setShowAutoTeam(true);
+    
+    toast({
+      title: `${formation.name} team generated!`,
+      description: `Created a team with ${newTeam.length} players based on highest points.`
+    });
+  };
+
   return (
     <div className="h-full flex bg-sportiq-black text-white">
       <Sidebar isOpen={isSidebarOpen} />
@@ -244,91 +345,162 @@ const Performance = () => {
                   </Button>
                 </div>
                 
-                <Button 
-                  variant="outline" 
-                  className={cn(
-                    "transition-colors",
-                    view === 'comparison' 
-                      ? "bg-sportiq-gold text-black hover:bg-sportiq-gold/90" 
-                      : "bg-sportiq-gold/10 text-sportiq-gold hover:bg-sportiq-gold/20"
-                  )}
-                  onClick={() => setView(view === 'performance' ? 'comparison' : 'performance')}
-                >
-                  {view === 'comparison' ? "Single Player" : "Compare Players"}
-                </Button>
+                <div className="flex rounded-md overflow-hidden">
+                  <Button 
+                    variant={view === 'performance' ? "default" : "outline"} 
+                    className={view === 'performance' ? "bg-sportiq-blue hover:bg-sportiq-blue/90" : "bg-sportiq-blue/10 text-sportiq-blue hover:bg-sportiq-blue/20"}
+                    onClick={() => setView('performance')}
+                  >
+                    Single
+                  </Button>
+                  <Button 
+                    variant={view === 'comparison' ? "default" : "outline"} 
+                    className={view === 'comparison' ? "bg-sportiq-purple hover:bg-sportiq-purple/90" : "bg-sportiq-purple/10 text-sportiq-purple hover:bg-sportiq-purple/20"}
+                    onClick={() => setView('comparison')}
+                  >
+                    Compare
+                  </Button>
+                  <Button 
+                    variant={view === 'auto-team' ? "default" : "outline"} 
+                    className={view === 'auto-team' ? "bg-sportiq-gold hover:bg-sportiq-gold/90 text-black" : "bg-sportiq-gold/10 text-sportiq-gold hover:bg-sportiq-gold/20"}
+                    onClick={() => setView('auto-team')}
+                  >
+                    Auto Team
+                  </Button>
+                </div>
               </div>
             </div>
             
             <div className="flex flex-col md:flex-row gap-6">
               {/* Player Selection */}
               <div className="w-full md:w-1/3 space-y-4">
-                <GlassCard className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold">
-                      {view === 'comparison' ? 'Compare Players' : 'Select Player'}
-                    </h2>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8" 
-                        onClick={() => setComparisonPlayers([])}
-                        disabled={comparisonPlayers.length === 0}
-                      >
-                        <FilterX className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Input 
-                      className="pl-9 bg-sportiq-lightgray/20 border-sportiq-lightgray/30"
-                      placeholder="Search players..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                    {filteredPlayers.map(player => (
-                      <div 
-                        key={player.id}
-                        className={cn(
-                          "p-3 rounded-lg cursor-pointer transition-colors flex items-center gap-3",
-                          view === 'comparison' 
-                            ? comparisonPlayers.some(p => p.id === player.id)
-                              ? "bg-sportiq-gold/30 hover:bg-sportiq-gold/40"
-                              : "bg-sportiq-lightgray/20 hover:bg-sportiq-lightgray/30"
-                            : selectedPlayer?.id === player.id
-                              ? "bg-sportiq-blue/30 hover:bg-sportiq-blue/40"
-                              : "bg-sportiq-lightgray/20 hover:bg-sportiq-lightgray/30"
-                        )}
-                        onClick={() => view === 'comparison' 
-                          ? togglePlayerComparison(player) 
-                          : setSelectedPlayer(player)
-                        }
-                      >
-                        <div className="h-10 w-10 rounded-full bg-sportiq-lightgray/30 flex items-center justify-center">
-                          <User className="h-5 w-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">{player.name}</p>
-                          <div className="flex text-xs text-white/70">
-                            <span>{player.team}</span>
-                            <span className="mx-1">•</span>
-                            <span>{player.position}</span>
-                          </div>
-                        </div>
-                        {view === 'comparison' && comparisonPlayers.some(p => p.id === player.id) && (
-                          <div className="h-5 w-5 rounded-full bg-sportiq-gold/50 flex items-center justify-center text-xs font-bold">
-                            {comparisonPlayers.findIndex(p => p.id === player.id) + 1}
-                          </div>
-                        )}
+                {view !== 'auto-team' ? (
+                  <GlassCard className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold">
+                        {view === 'comparison' ? 'Compare Players' : 'Select Player'}
+                      </h2>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => setComparisonPlayers([])}
+                          disabled={comparisonPlayers.length === 0}
+                        >
+                          <FilterX className="h-4 w-4" />
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </GlassCard>
+                    </div>
+                    
+                    <div className="relative mb-4">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+                      <Input 
+                        className="pl-9 bg-sportiq-lightgray/20 border-sportiq-lightgray/30"
+                        placeholder="Search players..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                      {filteredPlayers.map(player => (
+                        <div 
+                          key={player.id}
+                          className={cn(
+                            "p-3 rounded-lg cursor-pointer transition-colors flex items-center gap-3",
+                            view === 'comparison' 
+                              ? comparisonPlayers.some(p => p.id === player.id)
+                                ? "bg-sportiq-gold/30 hover:bg-sportiq-gold/40"
+                                : "bg-sportiq-lightgray/20 hover:bg-sportiq-lightgray/30"
+                              : selectedPlayer?.id === player.id
+                                ? "bg-sportiq-blue/30 hover:bg-sportiq-blue/40"
+                                : "bg-sportiq-lightgray/20 hover:bg-sportiq-lightgray/30"
+                          )}
+                          onClick={() => view === 'comparison' 
+                            ? togglePlayerComparison(player) 
+                            : setSelectedPlayer(player)
+                          }
+                        >
+                          <div className="h-10 w-10 rounded-full bg-sportiq-lightgray/30 flex items-center justify-center">
+                            <User className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{player.name}</p>
+                            <div className="flex text-xs text-white/70">
+                              <span>{player.team}</span>
+                              <span className="mx-1">•</span>
+                              <span>{player.position}</span>
+                            </div>
+                          </div>
+                          {view === 'comparison' && comparisonPlayers.some(p => p.id === player.id) && (
+                            <div className="h-5 w-5 rounded-full bg-sportiq-gold/50 flex items-center justify-center text-xs font-bold">
+                              {comparisonPlayers.findIndex(p => p.id === player.id) + 1}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </GlassCard>
+                ) : (
+                  <GlassCard className="p-4">
+                    <h2 className="text-xl font-bold mb-4">Auto Team Generator</h2>
+                    
+                    <div className="mb-6">
+                      <p className="text-white/70 mb-3">
+                        Generate a team automatically based on player performance points. Choose your preferred style:
+                      </p>
+                      
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button 
+                          variant={teamType === 'balanced' ? "default" : "outline"}
+                          className={teamType === 'balanced' ? "bg-sportiq-blue" : "bg-sportiq-blue/20 text-sportiq-blue hover:bg-sportiq-blue/30"}
+                          onClick={() => setTeamType('balanced')}
+                        >
+                          Balanced
+                        </Button>
+                        <Button 
+                          variant={teamType === 'defensive' ? "default" : "outline"}
+                          className={teamType === 'defensive' ? "bg-sportiq-green" : "bg-sportiq-green/20 text-sportiq-green hover:bg-sportiq-green/30"}
+                          onClick={() => setTeamType('defensive')}
+                        >
+                          Defensive
+                        </Button>
+                        <Button 
+                          variant={teamType === 'attacking' ? "default" : "outline"}
+                          className={teamType === 'attacking' ? "bg-sportiq-purple" : "bg-sportiq-purple/20 text-sportiq-purple hover:bg-sportiq-purple/30"}
+                          onClick={() => setTeamType('attacking')}
+                        >
+                          Attacking
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <h3 className="font-medium mb-2">Formation Details</h3>
+                      <div className="bg-sportiq-lightgray/20 p-3 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{formations[teamType].name}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(formations[teamType].positions).map(([position, count]) => (
+                            <div key={position} className="flex justify-between items-center">
+                              <span>{position}s</span>
+                              <span className="bg-sportiq-lightgray/30 px-2 py-0.5 rounded">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      className="w-full bg-sportiq-gold text-black hover:bg-sportiq-gold/90"
+                      onClick={generateAutoTeam}
+                    >
+                      Generate {teamType.charAt(0).toUpperCase() + teamType.slice(1)} Team
+                    </Button>
+                  </GlassCard>
+                )}
                 
                 {selectedPlayer && view === 'performance' && (
                   <GlassCard className="p-4">
@@ -546,308 +718,3 @@ const Performance = () => {
                                       backgroundColor: chartColors.background, 
                                       color: chartColors.text,
                                       border: `1px solid ${chartColors.secondary}`
-                                    }}
-                                  />
-                                  <Bar 
-                                    dataKey="value" 
-                                    name={selectedStatistic.charAt(0).toUpperCase() + selectedStatistic.slice(1)}
-                                    fill={chartColors.secondary} 
-                                  />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </GlassCard>
-                          
-                          <GlassCard className="p-4">
-                            <h3 className="text-lg font-bold mb-4">Performance Breakdown</h3>
-                            <div className="h-64">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={generatePieData(selectedPlayer)}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    outerRadius={80}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                  >
-                                    {generatePieData(selectedPlayer).map((entry, index) => (
-                                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                  </Pie>
-                                  <Tooltip 
-                                    contentStyle={{ 
-                                      backgroundColor: chartColors.background, 
-                                      color: chartColors.text,
-                                      border: `1px solid ${chartColors.accent}`
-                                    }}
-                                  />
-                                  <Legend wrapperStyle={{ color: chartColors.text }} />
-                                </PieChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </GlassCard>
-                        </div>
-                        
-                        <GlassCard className="p-4">
-                          <h3 className="text-lg font-bold mb-4">
-                            {selectedSport === 'football' ? 'Minutes vs Performance' : 'Balls Faced vs Runs'}
-                          </h3>
-                          <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <ScatterChart
-                                margin={{
-                                  top: 20,
-                                  right: 20,
-                                  bottom: 20,
-                                  left: 20,
-                                }}
-                              >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                <XAxis 
-                                  type="number" 
-                                  dataKey={selectedSport === 'football' ? 'minutes' : 'ballsFaced'} 
-                                  name={selectedSport === 'football' ? 'Minutes Played' : 'Balls Faced'} 
-                                  stroke={chartColors.text}
-                                />
-                                <YAxis 
-                                  type="number" 
-                                  dataKey="value" 
-                                  name={selectedSport === 'football' ? 'Performance' : 'Runs'} 
-                                  stroke={chartColors.text}
-                                />
-                                <Tooltip 
-                                  cursor={{ strokeDasharray: '3 3' }}
-                                  contentStyle={{ 
-                                    backgroundColor: chartColors.background, 
-                                    color: chartColors.text,
-                                    border: `1px solid ${chartColors.highlight}`
-                                  }}
-                                  formatter={(value, name) => [value, name]}
-                                  labelFormatter={(value) => `Match ${value}`}
-                                />
-                                <Legend wrapperStyle={{ color: chartColors.text }} />
-                                <Scatter 
-                                  name={selectedSport === 'football' ? 'Performance' : 'Runs'} 
-                                  data={generateScatterData(selectedPlayer)} 
-                                  fill={chartColors.highlight} 
-                                />
-                              </ScatterChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </GlassCard>
-                        
-                        <GlassCard className="p-4">
-                          <h3 className="text-lg font-bold mb-4">Form Trend</h3>
-                          <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart
-                                data={generatePlayerPerformanceData(selectedPlayer)}
-                                margin={{
-                                  top: 10,
-                                  right: 30,
-                                  left: 0,
-                                  bottom: 0,
-                                }}
-                              >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-                                <XAxis dataKey="match" stroke={chartColors.text} />
-                                <YAxis stroke={chartColors.text} />
-                                <Tooltip 
-                                  contentStyle={{ 
-                                    backgroundColor: chartColors.background, 
-                                    color: chartColors.text,
-                                    border: `1px solid ${chartColors.accent}`
-                                  }}
-                                />
-                                <Area 
-                                  type="monotone" 
-                                  dataKey="value" 
-                                  name="Form Rating"
-                                  stroke={chartColors.accent} 
-                                  fill={`${chartColors.accent}40`} 
-                                />
-                              </AreaChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </GlassCard>
-                      </>
-                    ) : (
-                      <GlassCard className="p-4 flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <User className="h-12 w-12 text-sportiq-blue/50 mx-auto mb-4" />
-                          <h3 className="text-xl font-bold mb-2">Select a Player</h3>
-                          <p className="text-white/70 max-w-md">
-                            Choose a player from the list to view detailed performance statistics and visualizations.
-                          </p>
-                        </div>
-                      </GlassCard>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {comparisonPlayers.length > 0 ? (
-                      <>
-                        <GlassCard className="p-4">
-                          <h3 className="text-lg font-bold mb-4">Player Comparison: {comparisonPlayers.map(p => p.name).join(' vs ')}</h3>
-                          
-                          <div className="overflow-x-auto">
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>Statistic</TableHead>
-                                  {comparisonPlayers.map(player => (
-                                    <TableHead key={player.id} className="text-center">{player.name}</TableHead>
-                                  ))}
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell className="font-medium">Points</TableCell>
-                                  {comparisonPlayers.map(player => (
-                                    <TableCell key={player.id} className="text-center">{player.points}</TableCell>
-                                  ))}
-                                </TableRow>
-                                {selectedSport === 'football' && (
-                                  <>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Goals</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.goals || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Assists</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.assists || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Minutes</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.minutesPlayed || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                  </>
-                                )}
-                                {selectedSport === 'cricket' && (
-                                  <>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Runs</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.runs || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Wickets</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.wickets || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell className="font-medium">Economy</TableCell>
-                                      {comparisonPlayers.map(player => (
-                                        <TableCell key={player.id} className="text-center">{player.stats?.economy || 0}</TableCell>
-                                      ))}
-                                    </TableRow>
-                                  </>
-                                )}
-                                <TableRow>
-                                  <TableCell className="font-medium">Form</TableCell>
-                                  {comparisonPlayers.map(player => (
-                                    <TableCell key={player.id} className="text-center">{player.form}</TableCell>
-                                  ))}
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium">Price</TableCell>
-                                  {comparisonPlayers.map(player => (
-                                    <TableCell key={player.id} className="text-center">��{player.price}m</TableCell>
-                                  ))}
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </div>
-                        </GlassCard>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <GlassCard className="p-4">
-                            <h3 className="text-lg font-bold mb-4">Key Stats Comparison</h3>
-                            <div className="space-y-4">
-                              {comparisonPlayers.map((player, index) => (
-                                <div key={player.id} className="flex items-center gap-3">
-                                  <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${COLORS[index % COLORS.length]}30` }}>
-                                    <User className="h-5 w-5" style={{ color: COLORS[index % COLORS.length] }} />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex justify-between items-center">
-                                      <p className="font-medium">{player.name}</p>
-                                      <p className="text-sm text-white/70">{player.points} pts</p>
-                                    </div>
-                                    <div className="w-full bg-sportiq-lightgray/20 h-2 rounded-full mt-1 overflow-hidden">
-                                      <div 
-                                        className="h-full rounded-full" 
-                                        style={{ 
-                                          backgroundColor: COLORS[index % COLORS.length],
-                                          width: `${(player.points / Math.max(...comparisonPlayers.map(p => p.points))) * 100}%`
-                                        }}
-                                      ></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </GlassCard>
-                          
-                          <GlassCard className="p-4">
-                            <h3 className="text-lg font-bold mb-4">Player Details</h3>
-                            <div className="space-y-3">
-                              {comparisonPlayers.map((player) => (
-                                <div key={player.id} className="bg-sportiq-lightgray/20 p-3 rounded-lg">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <p className="font-medium">{player.name}</p>
-                                    <p className="text-sm bg-sportiq-blue/20 text-sportiq-blue px-2 py-0.5 rounded">
-                                      {player.position}
-                                    </p>
-                                  </div>
-                                  <p className="text-sm text-white/70">{player.team}</p>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <span className="flex items-center gap-1 text-sm bg-sportiq-lightgray/30 px-2 py-0.5 rounded">
-                                      <DollarSign className="h-3 w-3" />
-                                      £{player.price}m
-                                    </span>
-                                    <span className="flex items-center gap-1 text-sm bg-sportiq-lightgray/30 px-2 py-0.5 rounded">
-                                      <TrendingUp className="h-3 w-3" />
-                                      {player.form}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </GlassCard>
-                        </div>
-                      </>
-                    ) : (
-                      <GlassCard className="p-4 flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <User className="h-12 w-12 text-sportiq-gold/50 mx-auto mb-4" />
-                          <h3 className="text-xl font-bold mb-2">Select Players to Compare</h3>
-                          <p className="text-white/70 max-w-md">
-                            Choose up to 3 players from the list to compare their performance statistics.
-                          </p>
-                        </div>
-                      </GlassCard>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default Performance;
